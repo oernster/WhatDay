@@ -37,3 +37,6 @@ installer/build/
 dist-installer/
 cmd/whatday/resource.syso
 installer/frontend/wailsjs/
+
+# Session snapshot written by /ox or the oxygen protocol; never committed
+.claude/resume.md
