@@ -502,15 +502,16 @@ that verifies it.
   `%LOCALAPPDATA%\Programs\WhatDay` without requesting administrator rights.
 - Verified by: manual install on the reference machine.
 
-**FR-071 Install, update, repair, uninstall**
-- Status: partly met. The Apps list offers Modify only (`NoRepair` is set);
-  Modify opens setup, where Repair lives. A Repair entry in the Apps list
-  itself does not exist.
+**FR-071 Install, update, go back, repair, uninstall** (Amendment 8)
 - Priority: Must
-- Requirement: The setup program shall offer install, update, repair and
-  uninstall with a screen for each; it shall register in the Windows Apps
-  list with Modify and Repair.
-- Verified by: manual; each route exercised once.
+- Requirement: The setup program shall offer install, update, going back to
+  an older version, repair and uninstall, with a screen for each. It shall
+  register in the Windows Apps list with two commands. Uninstall opens setup
+  on its removal screen; Modify opens it on the screen for the version
+  installed, where Repair is offered. The Apps list shall offer no Repair of
+  its own (`NoRepair`), so repairing always goes through setup's screen.
+- Verified by: manual; each route exercised once, the Apps list entry
+  inspected.
 
 **FR-072 Stop before replace**
 - Priority: Must
@@ -525,12 +526,11 @@ that verifies it.
   decided 2026-09-19).
 - Verified by: manual; registry and folders inspected afterwards.
 
-**FR-074 House style**
-- Status: partly met. The 126 px mark, centred body and progress bar are in
-  place; the setup page is dark only, with no light theme and no toggle.
+**FR-074 House style** (Amendment 8)
 - Priority: Must
 - Requirement: The setup program shall follow PigeonPost's installer: 126 px
-  mark, centred body, progress bar, light and dark themes.
+  mark, centred body, progress bar. It shall be dark only, with no theme
+  toggle, matching the strip (Amendment 2).
 - Verified by: inspection beside PigeonPost's setup program.
 
 ### 3.7 Non-functional requirements
@@ -647,6 +647,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 8 | 2026-09-19 | FR-071, FR-074 | FR-071 names going back as a route and states the Apps list entry as built: Uninstall and Modify, no Repair of its own. FR-074 makes the setup program dark only, with no theme toggle. | Owner's decision after the docs pass found both unmet: amend the specification to match what is built rather than build to it. |
 | 7 | 2026-09-19 | FR-060, FR-035, scope | Starting at login becomes an option in the setup program, on by default for a fresh install, applied at once on the repair screen. The Run, uninstall and modify values are written as plain quoted paths. | Owner's decision: an option to start with Windows. Measured: the values had been written with Go's %q, which doubled every backslash in the registry. |
 | 6 | 2026-09-19 | FR-032, new FR-036, NFR-PRIV-001 | The tray menu gains `Support WhatDay (opens your browser)` after About, handing WhatDay's own PayPal page to the browser. | Owner's decision: a donation link in the tray, as the other apps carry one. |
 | 5 | 2026-09-19 | FR-032, new FR-035, scope, Won't list | The tray menu ends with a separator and `Quit WhatDay`. | Owner's decision after the first run: without it the only way to stop WhatDay was Task Manager. |
