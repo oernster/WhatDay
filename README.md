@@ -11,7 +11,7 @@ What fucking day is it?  Everything tells me the time and date; nothing tells me
 ---
 
 WhatDay puts the name of the day in a small dark strip just above the Windows
-11 taskbar. `Saturday`. That is the whole product. It changes at midnight, in
+taskbar. `Saturday`. That is the whole product. It changes at midnight, in
 whatever timezone Windows is set to.
 
 Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
@@ -78,11 +78,12 @@ gets its translucent Acrylic backdrop (22H2 and later).
 Setup puts WhatDay in `%LOCALAPPDATA%\Programs\WhatDay`, adds a Start Menu
 shortcut and lists it under Settings > Apps. `Start WhatDay when I sign in to
 Windows` is ticked to begin with; untick it to start WhatDay only when you
-choose. Running setup again shows the option as it stands and changes it on
-the spot.
+choose.
+
 Running setup again offers Update, Go back or Repair, depending on the version
-already installed, with Uninstall beside each. Modify in the Apps list opens
-the same program.
+already installed, with Uninstall beside each. The sign-in option shows how it
+stands; on the Repair screen a change to it applies at once. Modify in the
+Apps list opens the same program.
 
 Uninstalling removes the program, the shortcut, the sign-in entry, the Apps
 list entry and everything WhatDay wrote: its settings and its log.

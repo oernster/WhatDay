@@ -108,8 +108,8 @@ and window handling are verified by hand.
 ### Why the timer never waits more than a minute
 
 A Win32 timer counts elapsed time rather than wall-clock time; it also pauses
-while the machine sleeps. Trusting one timer for hours would drift. Waking at least
-once a minute puts any drift right within a minute; it also catches a missed
+while the machine sleeps. Trusting one timer for hours would drift. Waking at
+least once a minute puts any drift right within a minute; it also catches a missed
 resume or time-change message and a timezone change nobody announced. The
 cost is one refresh a minute; the idle CPU budget for it (NFR-PERF-001) has
 not yet been measured.
@@ -142,8 +142,8 @@ last good zone is kept and the fault is logged once.
 - DWM gives it dark mode, rounded corners and the Acrylic backdrop, with the
   frame extended over the whole window.
 - The day name is drawn white on a transparent 32-bit bitmap; each pixel's
-  coverage then becomes the alpha of the chosen colour, premultiplied. Everywhere
-  but the letters stays transparent, so the Acrylic shows through.
+  coverage then becomes the alpha of the chosen colour, premultiplied.
+  Everywhere but the letters stays transparent, so the Acrylic shows through.
 - The width fits the widest day name at the current height, so it never
   changes from day to day.
 - The process is per-monitor DPI aware (V2). The height is the taskbar height
@@ -174,8 +174,8 @@ confirmed fixed on the reference machine.
 ## Settings
 
 `%APPDATA%\WhatDay\settings.json` holds the colour name, plus the position
-once the strip has been dragged. The file's shape is its own type in the settings package, kept
-apart from the port's `Settings` on purpose: the file is a format and the
+once the strip has been dragged. The file's shape is its own type in the
+settings package, kept apart from the port's `Settings` on purpose: the file is a format and the
 port is a type. Saves go to a temporary file first, then one rename replaces
 the target, so an interrupted save leaves the previous file intact. A save
 that fails keeps the choice for the running session and logs why.

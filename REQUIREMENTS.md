@@ -503,6 +503,9 @@ that verifies it.
 - Verified by: manual install on the reference machine.
 
 **FR-071 Install, update, repair, uninstall**
+- Status: partly met. The Apps list offers Modify only (`NoRepair` is set);
+  Modify opens setup, where Repair lives. A Repair entry in the Apps list
+  itself does not exist.
 - Priority: Must
 - Requirement: The setup program shall offer install, update, repair and
   uninstall with a screen for each; it shall register in the Windows Apps
@@ -523,6 +526,8 @@ that verifies it.
 - Verified by: manual; registry and folders inspected afterwards.
 
 **FR-074 House style**
+- Status: partly met. The 126 px mark, centred body and progress bar are in
+  place; the setup page is dark only, with no light theme and no toggle.
 - Priority: Must
 - Requirement: The setup program shall follow PigeonPost's installer: 126 px
   mark, centred body, progress bar, light and dark themes.
