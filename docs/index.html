@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WhatDay: what day is it?</title>
+    <meta name="description" content="WhatDay shows the day of the week in a small dark strip above the Windows 11 taskbar. That is all it does. It is engineered far beyond reason.">
+    <meta name="theme-color" content="#11141b">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WhatDay: what day is it?">
+    <meta property="og:description" content="Everything tells you the time and date; nothing tells you the day. WhatDay does. For Windows 11.">
+    <meta property="og:image" content="https://oernster.github.io/WhatDay/icon.png">
+    <meta property="og:url" content="https://oernster.github.io/WhatDay/">
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "WhatDay",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 11",
+        "description": "Shows the day of the week above the Windows 11 taskbar.",
+        "author": {"@type": "Person", "name": "Oliver Ernster", "url": "https://ernster.dev"},
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}
+    }
+    </script>
+</head>
+<body>
+
+<header class="wrap site-head">
+    <a class="brand" href="#top"><img src="icon.png" alt="" width="34" height="34"> WhatDay</a>
+    <nav aria-label="Sections">
+        <a href="#why" class="hide-sm">Why</a>
+        <a href="#overkill">Overkill</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/oernster/WhatDay">GitHub</a>
+    </nav>
+</header>
+
+<main id="top">
+
+    <div class="wrap hero">
+        <div>
+            <p class="eyebrow">
+                <span class="pill">v<!--VERSION-->1.0.0<!--/VERSION--></span>
+                <span class="pill">Windows 11</span>
+                <span class="pill">Free and open source</span>
+            </p>
+            <h1>What <span class="swear">fucking</span> day is it?</h1>
+            <p class="lead">Everything tells you the time and date; nothing tells you
+                the day. <strong>WhatDay does.</strong> It puts the name of the day in a
+                small dark strip above your taskbar, changes it at midnight and does
+                absolutely nothing else.</p>
+            <div class="cta">
+                <a class="btn btn-primary" href="https://github.com/oernster/WhatDay/releases/latest">Download for Windows</a>
+                <a class="btn" href="https://github.com/oernster/WhatDay">View the source</a>
+            </div>
+        </div>
+
+        <div>
+            <div class="desk" id="desk" aria-label="An illustration of WhatDay above the taskbar">
+                <p class="desk-note">Today, for the record. Drag it about; it will not go
+                    on the taskbar either.</p>
+                <div class="strip" id="strip" role="img" aria-live="polite">Today</div>
+                <div class="taskbar" aria-hidden="true">
+                    <div class="start"><span></span><span></span><span></span><span></span></div>
+                    <div class="clock" id="clock"></div>
+                </div>
+            </div>
+            <div class="swatches" role="group" aria-label="Choose a colour">
+                <span>Six colours:</span>
+                <button class="swatch" style="--c: var(--red)" data-colour="red" aria-label="Red" aria-pressed="true"></button>
+                <button class="swatch" style="--c: var(--amber)" data-colour="amber" aria-label="Amber" aria-pressed="false"></button>
+                <button class="swatch" style="--c: var(--green)" data-colour="green" aria-label="Green" aria-pressed="false"></button>
+                <button class="swatch" style="--c: var(--blue)" data-colour="blue" aria-label="Blue" aria-pressed="false"></button>
+                <button class="swatch" style="--c: var(--purple)" data-colour="purple" aria-label="Purple" aria-pressed="false"></button>
+                <button class="swatch" style="--c: var(--neutral)" data-colour="neutral" aria-label="Neutral" aria-pressed="false"></button>
+            </div>
+        </div>
+    </div>
+
+    <section class="wrap" id="why">
+        <p class="kicker">Born of frustration</p>
+        <h2>The clock knows the year. It will not tell you it is Thursday.</h2>
+        <div class="prose">
+            <p>You work from home. Or you have just had a week off. Or it has simply been
+                one of those weeks, where Tuesday and Friday are the same grey shape. You
+                glance at the corner of the screen and Windows helpfully tells you the
+                hour, the minute and the date down to the year.</p>
+            <p>You then count on your fingers from the last thing you are sure happened
+                on a Monday.</p>
+            <p><strong>That is the whole problem.</strong> A computer that can render
+                a film, translate Portuguese and lose an argument with a printer could
+                not be persuaded to show one word. So now it does.</p>
+        </div>
+        <figure class="screenshot">
+            <img src="screenshots/strip.png" width="249" height="107"
+                 alt="WhatDay's strip reading Saturday in amber, sitting just above the Windows 11 taskbar clock">
+            <figcaption>The real thing, above a real taskbar. The clock's date line is
+                cropped out. This site shows no dates; anyway, the date was never the
+                question.</figcaption>
+        </figure>
+    </section>
+
+    <section class="wrap" id="overkill">
+        <p class="kicker">Engineered far beyond reason</p>
+        <h2>It shows one word from a list of seven. Here is what that took.</h2>
+        <div class="prose">
+            <p>A reasonable person would have written this in an afternoon. What
+                happened instead is below. Every number on this page was measured from
+                the code, because making them up would have been the one shortcut out
+                of character.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="n">146,097</span>
+                <p>Days checked: every date from 2000 to 2399, each against a second,
+                    independent weekday formula written into the tests.</p>
+                <span class="aside">In case the programming language got Tuesdays wrong.</span>
+            </div>
+            <div class="stat">
+                <span class="n">598</span>
+                <p>Time zones walked midnight by midnight for an entire century, to
+                    prove every day begins exactly when it should.</p>
+                <span class="aside">You live in one of them.</span>
+            </div>
+            <div class="stat">
+                <span class="n">746</span>
+                <p>Midnights that never happen, where clocks jump straight past 00:00.
+                    WhatDay finds when those days really start, by bisection, to the
+                    nanosecond.</p>
+                <span class="aside">A nanosecond is quite precise for a word.</span>
+            </div>
+            <div class="stat">
+                <span class="n">100%</span>
+                <p>Test coverage of every line that decides what day it is. The build
+                    refuses to run if it slips.</p>
+                <span class="aside">There is no switch to skip it. That was deliberate.</span>
+            </div>
+            <div class="stat">
+                <span class="n">10</span>
+                <p>Structural tests that fail the build if the architecture of this
+                    one-word program is compromised.</p>
+                <span class="aside">Four layers. Clean architecture. For "Saturday".</span>
+            </div>
+            <div class="stat">
+                <span class="n">600+</span>
+                <p>Lines of formal requirements specification, every requirement tied
+                    to the test that proves it. With six numbered amendments.</p>
+                <span class="aside">One of them is about the Quit button.</span>
+            </div>
+            <div class="stat">
+                <span class="n">2</span>
+                <p>Colour-science standards (WCAG contrast and CIEDE2000) consulted so
+                    six colours are legible and look nothing alike.</p>
+                <span class="aside">Blue and Purple were closest. They were checked.</span>
+            </div>
+            <div class="stat">
+                <span class="n">1 : 1</span>
+                <p>Roughly as many lines of tests as lines of program.</p>
+                <span class="aside">Over a hundred tests, for seven possible outputs.</span>
+            </div>
+            <div class="stat">
+                <span class="n">5</span>
+                <p>Routes through its own bespoke installer: install, update, go back,
+                    repair and uninstall, each with its own screen.</p>
+                <span class="aside">It has a repair screen. For a word.</span>
+            </div>
+            <div class="stat">
+                <span class="n">0</span>
+                <p>Network connections. Not "we promise": a test fails the build if any
+                    of its code so much as imports a network package.</p>
+                <span class="aside">It does not need the internet to know it is Wednesday.</span>
+            </div>
+        </div>
+        <p class="verdict">Is it overkill? Yes. Is it ever wrong about the day? Also,
+            demonstrably, no.</p>
+    </section>
+
+    <section class="wrap" id="what">
+        <p class="kicker">The feature list</p>
+        <h2>Short. Deliberately.</h2>
+        <div class="two-col">
+            <div class="card">
+                <h3>What it does</h3>
+                <ul>
+                    <li><strong>Shows the day</strong>, in English, in full, in a strip as tall
+                        as your taskbar.</li>
+                    <li><strong>Changes at midnight</strong> in whatever timezone Windows is
+                        set to. Fly to Sydney and the day follows you.</li>
+                    <li><strong>Catches up</strong> after sleep, a clock change or a
+                        timezone change.</li>
+                    <li><strong>Stays where you drag it</strong> across restarts. Never
+                        on the taskbar.</li>
+                    <li><strong>Hides for fullscreen</strong> films and anything else
+                        that takes the whole screen, as the taskbar does.</li>
+                    <li><strong>Starts when you sign in</strong>. Quit it from the tray
+                        whenever you like.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>What it does not do</h3>
+                <ul>
+                    <li><strong>The date, the time or a week number.</strong> Your clock
+                        has those. It is very proud of them.</li>
+                    <li><strong>Light mode.</strong> The strip is always dark. So is this
+                        page. You were warned.</li>
+                    <li><strong>Settings windows.</strong> The tray menu holds About,
+                        Support, six colours and Quit. That is the lot.</li>
+                    <li><strong>The internet.</strong> No updates, no telemetry, no
+                        accounts. It sends nothing, ever.</li>
+                    <li><strong>Other languages.</strong> The days are in English,
+                        wherever you are.</li>
+                    <li><strong>Other systems.</strong> Windows 11 only: the translucent
+                        backdrop first exists there.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="wrap" id="install">
+        <p class="kicker">Install</p>
+        <h2>Install it once. Never wonder again.</h2>
+        <ol class="steps">
+            <li><strong>Download</strong> <code>WhatDaySetup.exe</code> from the
+                <a href="https://github.com/oernster/WhatDay/releases/latest">latest
+                release</a>.</li>
+            <li><strong>Run it</strong> and choose Install. It installs for your account
+                only, so Windows never asks for administrator rights.</li>
+            <li><strong>Look down.</strong> There is the day. It will be there every
+                time you sign in.</li>
+        </ol>
+        <div class="prose" style="margin-top: 20px;">
+            <p>Needs Windows 11 22H2 or later. To remove it, uninstall from Settings &gt;
+                Apps; that takes everything it wrote with it: the program, its settings
+                and its log.</p>
+        </div>
+    </section>
+
+    <section class="wrap support" id="support">
+        <p class="kicker">Supporting WhatDay</p>
+        <h2>Free. It stays free.</h2>
+        <div class="prose">
+            <p>There is no paid tier, no licence key and no feature held back behind a
+                donation. There are, frankly, not enough features to hold one back. If
+                WhatDay has saved you from counting on your fingers, a contribution
+                supports its maintenance and continued over-engineering. The same link
+                sits in the tray menu as <em>Support WhatDay</em>.</p>
+        </div>
+        <div class="cta">
+            <a class="btn btn-donate" href="https://www.paypal.com/ncp/payment/7LC63AH9F2UYU">
+                <img src="donate.png" alt="">
+                Donate
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="wrap site-foot">
+    <span>&copy; Oliver Ernster. GPL-3.0.
+        <a href="https://ernster.dev/commercial-licensing.html">Commercial licences</a> available.</span>
+    <span><a href="https://github.com/oernster/WhatDay">Source</a> &middot;
+        <a href="https://ernster.dev">ernster.dev</a></span>
+</footer>
+
+<script>
+(() => {
+    'use strict';
+
+    // One home for the day name: English, in full, as the app shows it.
+    const dayName = new Intl.DateTimeFormat('en-GB', {weekday: 'long'});
+    const timeOnly = new Intl.DateTimeFormat('en-GB', {hour: '2-digit', minute: '2-digit'});
+    const strip = document.getElementById('strip');
+    const clock = document.getElementById('clock');
+    const MINUTE = 60 * 1000;
+
+    // Like the app, look again at least once a minute rather than trusting one
+    // long timer to land on midnight.
+    function refresh() {
+        const now = new Date();
+        const day = dayName.format(now);
+        strip.textContent = day;
+        strip.setAttribute('aria-label', 'Today is ' + day);
+        clock.textContent = timeOnly.format(now);
+    }
+    refresh();
+    setInterval(refresh, MINUTE / 4);
+
+    // The six colours recolour the strip and the page's accent together.
+    const swatches = document.querySelectorAll('.swatch');
+    swatches.forEach((swatch) => {
+        swatch.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--accent', 'var(--' + swatch.dataset.colour + ')');
+            swatches.forEach((other) => other.setAttribute('aria-pressed', String(other === swatch)));
+        });
+    });
+
+    // Drag the strip; it is clamped above the taskbar, as the real one is.
+    const desk = document.getElementById('desk');
+    const taskbar = desk.querySelector('.taskbar');
+    let grab = null;
+    strip.addEventListener('pointerdown', (event) => {
+        const box = strip.getBoundingClientRect();
+        grab = {dx: event.clientX - box.left, dy: event.clientY - box.top};
+        strip.setPointerCapture(event.pointerId);
+    });
+    strip.addEventListener('pointermove', (event) => {
+        if (!grab) return;
+        const area = desk.getBoundingClientRect();
+        const maxX = area.width - strip.offsetWidth;
+        const maxY = area.height - taskbar.offsetHeight - strip.offsetHeight;
+        const x = Math.min(Math.max(event.clientX - area.left - grab.dx, 0), maxX);
+        const y = Math.min(Math.max(event.clientY - area.top - grab.dy, 0), maxY);
+        strip.style.left = x + 'px';
+        strip.style.top = y + 'px';
+        strip.style.right = 'auto';
+        strip.style.bottom = 'auto';
+    });
+    const release = () => { grab = null; };
+    strip.addEventListener('pointerup', release);
+    strip.addEventListener('pointercancel', release);
+})();
+</script>
+
+</body>
+</html>

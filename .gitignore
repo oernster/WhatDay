@@ -40,3 +40,6 @@ installer/frontend/wailsjs/
 
 # Session snapshot written by /ox or the oxygen protocol; never committed
 .claude/resume.md
+
+# Release notes, drafted locally for each release; never committed
+NOTES.md

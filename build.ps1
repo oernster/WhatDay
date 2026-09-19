@@ -22,6 +22,14 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
 
+# The site cannot read VERSION, so its version tokens are stamped from it
+# before anything is built. A site showing an older number than the setup
+# program it offers is a quiet error nobody catches by eye. Ported from
+# Bridge Talk's build.
+Write-Host 'Stamping the version into the site...'
+python (Join-Path $root 'stamp_version.py')
+if ($LASTEXITCODE -ne 0) { throw "stamp_version.py failed with exit code $LASTEXITCODE" }
+
 & (Join-Path $root 'test.ps1')
 
 $version = (Get-Content (Join-Path $root 'VERSION') -Raw).Trim()
