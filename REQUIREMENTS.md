@@ -1,6 +1,8 @@
 # WhatDay: Software Requirements Specification
 
-Status: draft for review, not yet baselined.
+Status: baselined 2026-09-19. Changes from here arrive as numbered amendments
+with a reason (section 6). One open question remains (Q-5); it gates only the
+choice of palette shades, not the rest of the build.
 
 ## 1. Introduction
 
@@ -40,6 +42,8 @@ Out of scope (decided; see also 3.5 Won't this time):
 - Windows 10, macOS and Linux.
 - Any network access, including an update check.
 - An Exit item in the menu.
+- Correcting the Windows clock. WhatDay trusts the system clock; keeping it
+  right is Windows' job (time synchronisation), as is any leap second.
 
 ### 1.4 Definitions
 
@@ -50,6 +54,8 @@ Out of scope (decided; see also 3.5 Won't this time):
 | Menu | The popup menu opened from the tray icon. |
 | London day | The day of the week of the current instant in the IANA zone Europe/London (GMT in winter, BST in summer). |
 | London midnight | The instant at which the Europe/London civil date changes. |
+| System clock | The Windows clock as the process reads it. Every "within 1 s" in this document is measured against it. |
+| Gregorian calendar | The proleptic Gregorian calendar: a year is a leap year when divisible by 4, except century years, which are leap years only when divisible by 400 (2000 and 2400 leap; 1900 and 2100 common). |
 | Windows mode | The Windows setting "Choose your default Windows mode", stored as `SystemUsesLightTheme`. It is what the taskbar follows; it is distinct from the app mode. |
 | Work area | The rectangle of a monitor not occupied by the taskbar, as reported by Windows. |
 | Drag threshold | The Windows system drag distance (`SM_CXDRAG`, `SM_CYDRAG`). |
@@ -100,11 +106,11 @@ that build.
 
 ### 2.5 Assumptions and dependencies
 
-| ID | Assumption | Owner | Confirm by |
+| ID | Assumption | Owner | Status |
 |---|---|---|---|
-| A-1 | UK daylight saving rules do not change during the product's life. If they do, a rebuild with a newer Go toolchain carries the new rules. | Oliver | 2026-09-26 |
-| A-2 | The taskbar stays at the bottom edge and is not set to auto-hide. The work-area rule (FR-018) relies on a taskbar that reserves space. | Oliver | 2026-09-26 |
-| A-3 | Oliver supplies the tray, application and installer artwork as a master PNG with a transparent background. | Oliver | 2026-09-26 |
+| A-1 | UK daylight saving rules do not change during the product's life. If they do, a rebuild with a newer Go toolchain carries the new rules. | Oliver | Confirmed 2026-09-19 |
+| A-2 | The taskbar stays at the bottom edge and is not set to auto-hide. The work-area rule (FR-018) relies on a taskbar that reserves space. | Oliver | Confirmed 2026-09-19 |
+| A-3 | Oliver supplies the tray, application and installer artwork as a master PNG with a transparent background. | Oliver | Confirmed and met 2026-09-19: `assets/application-icon.png`, 1254x1254 RGBA, all four corners alpha 0 (measured, Appendix A M-8). |
 
 ## 3. Requirements
 
@@ -161,6 +167,25 @@ test names are planned, not yet written.
   then within 1 s the indicator reads `Wednesday`; moved back, it reads
   `Monday`.
 - Verified by: `internal/application/refresh_test.go::TestClockChangeReevaluates`
+
+**FR-006 Calendar correctness**
+- Priority: Must
+- Requirement: The day service shall name the correct weekday for every date
+  of the Gregorian calendar from 2000-01-01 to 2399-12-31, including 29
+  February in leap years, the common century year 2100 and year boundaries.
+- Rationale: Leap years and century rules are where a day calculation goes
+  quietly wrong.
+- Acceptance: 2000-02-29 is Tuesday; 2024-02-29 is Thursday; 2028-02-29 is
+  Tuesday; 2100-02-28 is Sunday and the next day is 2100-03-01, Monday;
+  2026-12-31 is Thursday and 2027-01-01 is Friday. (Each checked against
+  Python's calendar, independent of Go.)
+- Verified by: `internal/domain/day_test.go::TestEveryDayAgainstIndependentFormula`,
+  which walks every date in the range and compares against a separate
+  weekday formula (Sakamoto's method) written into the test, not against Go's
+  own `time` package; plus `internal/domain/midnight_test.go::TestMidnightChain`,
+  which follows next London midnight from 2000-01-01 to 2399-12-31 and asserts
+  every step lands on the following civil date at 00:00 London time, through
+  every leap day and every GMT/BST change.
 
 ### 3.2 Functional requirements: the indicator
 
@@ -246,7 +271,7 @@ test names are planned, not yet written.
 - Priority: Must
 - Requirement: When the left button is pressed and released on the indicator
   without passing the drag threshold, the indicator shall take no action.
-- Rationale: The tray is the control surface. See open question Q-1.
+- Rationale: The tray is the control surface (Q-1, decided 2026-09-19).
 - Verified by: `TestThresholdSeparatesClickFromDrag`
 
 **FR-020 Hide for fullscreen**
@@ -268,11 +293,15 @@ test names are planned, not yet written.
 
 **FR-022 Lost monitor**
 - Priority: Must
-- Requirement: If the saved or current position lies outside every monitor's
-  work area at startup or after a display change, then the indicator shall
-  move to the default position (FR-021).
+- Requirement: If the centre of the indicator at its saved or current
+  position lies on no attached monitor at startup or after a display change,
+  then the indicator shall move to the default position (FR-021). Otherwise
+  the indicator shall stay on the monitor holding its centre, clamped into
+  that monitor's work area (FR-018). (Amendment 1.)
 - Acceptance: Given a saved position on a monitor that is no longer attached,
   when WhatDay starts, then the indicator appears at the default position.
+  Given a saved top-left of (3000,1370) on the measured monitor (centre over
+  the taskbar), then the indicator appears at (3000,1344).
 - Verified by: `internal/domain/geometry_test.go::TestLostMonitorFallsBack`
 
 **FR-023 Display changes**
@@ -332,14 +361,14 @@ test names are planned, not yet written.
 - Rationale: Measured: a single shade cannot serve both modes. Green `#30B050`
   reaches 5.65:1 on dark but 2.54:1 on light; Amber `#F0A010` 7.38:1 on dark
   but 1.94:1 on light (Appendix A M-7).
-- Proposed names: Red, Amber, Green, Blue, Purple, Neutral (white on dark,
-  black on light). See Q-2.
+- Names (Q-2, decided 2026-09-19), in menu order: Red, Amber, Green, Blue,
+  Purple, Neutral (white on dark, black on light).
 - Verified by: NFR-COL-001 and NFR-COL-002.
 
 **FR-041 Default colour**
 - Priority: Must
-- Requirement: Where no colour has been saved, the indicator shall use Red.
-  See Q-3.
+- Requirement: Where no colour has been saved, the indicator shall use Red
+  (Q-3, decided 2026-09-19).
 - Verified by: `internal/application/settings_test.go::TestDefaults`
 
 ### 3.5 Functional requirements: settings and lifecycle
@@ -428,7 +457,8 @@ test names are planned, not yet written.
 **FR-073 Uninstall removes everything WhatDay wrote**
 - Priority: Must
 - Requirement: When uninstalling, the setup program shall remove the install
-  directory, the login entry, the Apps list entry and the settings. See Q-4.
+  directory, the login entry, the Apps list entry and the settings (Q-4,
+  decided 2026-09-19).
 - Verified by: manual; registry and folders inspected afterwards.
 
 **FR-074 House style**
@@ -521,16 +551,16 @@ file and read back. Not project code.
 | M-5 | Win32 calls on a borderless popup | Dark mode, rounded corners, frame extension and Acrylic backdrop all returned `S_OK`. Default placement (3265,1344) in work area (0,0)-(3440,1392). |
 | M-6 | Other monitors | Dragged to (3442,3672) and judged working by eye. No DPI change was logged and the probe does not rescale, so FR-014's 250% case is unmeasured. |
 | M-7 | Contrast of the probe colours | Dark mode against `#1C222F`: Red 3.51, Green 5.65, Blue 4.22, Amber 7.38, Purple 3.98. Light mode against an assumed `#F3F3F3`: Red 4.08, Green 2.54, Blue 3.40, Amber 1.94, Purple 3.61. |
+| M-8 | Artwork | `assets/application-icon.png`: 1254x1254, 8-bit RGBA; corners alpha 0; 24.2% of pixels alpha 0; visible bounds x 47 to 1191, y 24 to 1207. The artwork body sits near alpha 252 rather than 255 (0.1% of pixels fully opaque), typical of automatic background removal; to be inspected in the generated icons. |
 
 ### Appendix B: Open questions
 
-| ID | Question | Proposed answer | Owner | Due |
+Q-1 to Q-4 were decided on 2026-09-19 and now live in FR-019, FR-040, FR-041
+and FR-073.
+
+| ID | Question | Plan | Owner | Due |
 |---|---|---|---|---|
-| Q-1 | Does a click on the indicator do anything? | Nothing (FR-019). | Oliver | 2026-09-26 |
-| Q-2 | Which colour names? | Red, Amber, Green, Blue, Purple, Neutral. | Oliver | 2026-09-26 |
-| Q-3 | Default colour? | Red. | Oliver | 2026-09-26 |
-| Q-4 | Does uninstall delete the settings? | Yes (FR-073). | Oliver | 2026-09-26 |
-| Q-5 | The light-mode Acrylic background colour has not been measured; NFR-COL-001 needs it. | Measure it with the probe in light mode before choosing light shades. | Claude | first build step |
+| Q-5 | What colour is the indicator's own Acrylic background in each mode? M-4 measured the taskbar rather than the indicator; light mode was not measured at all. NFR-COL-001 needs both. | Sample the running indicator's background in dark and light mode over a few different windows behind it; record the range. Choose shades against the worst case. | Claude, with Oliver switching the mode | Before the palette shades are fixed |
 
 ### Appendix C: Build order
 
@@ -543,3 +573,9 @@ file and read back. Not project code.
    window, tray, appbar, DWM, timers and power events.
 4. UI and the composition root.
 5. Setup program, ported from PigeonPost.
+
+## 6. Amendments
+
+| No. | Date | Requirement | Change | Reason |
+|---|---|---|---|---|
+| 1 | 2026-09-19 | FR-022 | "Lost" is judged by the monitor's whole rectangle, not its work area; a strip still on its monitor is clamped, not moved. | `TestPlaceClampsSavedPositionOverlappingTaskbar` failed against the baseline wording: a strip whose centre sat over the taskbar was sent to the default corner though its monitor was attached. |
