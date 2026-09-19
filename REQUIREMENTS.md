@@ -233,19 +233,16 @@ test names are planned, not yet written.
 
 **FR-015 Background**
 - Priority: Must
-- Requirement: The indicator's background shall be the Acrylic material in the
-  current Windows mode.
+- Requirement: The indicator's background shall be the dark Acrylic material,
+  whatever the Windows mode (Amendment 2).
 - Rationale: Measured in probe round 3: Acrylic was judged right by eye;
   Mica, Mica Alt and the two solid colours were near-identical to one another
   and none matched (Appendix A M-4).
 - Verified by: inspection.
 
 **FR-016 Follow Windows mode**
-- Priority: Must
-- Requirement: When the Windows mode changes between light and dark, the
-  indicator shall repaint in the new mode within 1 s.
-- Verified by: manual; the change arrives as `WM_SETTINGCHANGE` with
-  `ImmersiveColorSet`.
+- Retired by Amendment 2. The indicator is always dark; the number is not
+  reused.
 
 **FR-017 Drag to move**
 - Priority: Must
@@ -355,14 +352,10 @@ test names are planned, not yet written.
 
 **FR-040 Palette**
 - Priority: Must
-- Requirement: The palette shall hold named colours, each with one shade for
-  dark mode and one for light mode. The indicator shall paint the shade that
-  matches the current Windows mode.
-- Rationale: Measured: a single shade cannot serve both modes. Green `#30B050`
-  reaches 5.65:1 on dark but 2.54:1 on light; Amber `#F0A010` 7.38:1 on dark
-  but 1.94:1 on light (Appendix A M-7).
+- Requirement: The palette shall hold named colours, one shade each, chosen
+  for the dark Acrylic background (Amendment 2).
 - Names (Q-2, decided 2026-09-19), in menu order: Red, Amber, Green, Blue,
-  Purple, Neutral (white on dark, black on light).
+  Purple, Neutral (white).
 - Verified by: NFR-COL-001 and NFR-COL-002.
 
 **FR-041 Default colour**
@@ -481,13 +474,12 @@ start on the reference machine, measured from the log's start line to its
 shown line.
 
 **NFR-COL-001 Contrast**: Every palette shade shall reach at least 3.0:1 WCAG
-contrast against the measured Acrylic background of its mode. The day name is
+contrast against the measured dark Acrylic background. The day name is
 large text (at least 24 px, which is 18 pt), so 3:1 is the WCAG threshold. Verified
 by a test over the palette table against the background constants recorded in
 Appendix A.
 
-**NFR-COL-002 Distinct colours**: Within each mode, every pair of palette
-shades shall differ by a CIEDE2000 distance of at least 20, so no two choices
+**NFR-COL-002 Distinct colours**: Every pair of palette shades shall differ by a CIEDE2000 distance of at least 20, so no two choices
 look alike. Verified by the same test.
 
 **NFR-PRIV-001 No network**: WhatDay and its setup program shall make no
@@ -519,6 +511,7 @@ for and not for), `ARCHITECTURE.md` (invariants linked to their tests) and
 | Auto-hide taskbar support | Rests on A-2; the work area does not exclude an auto-hidden taskbar. |
 | Taskbar at the top or sides | Rests on A-2. |
 | Localisation, other zones | Out of scope (1.3). |
+| Light mode | Amendment 2: the owner uses dark mode only. In light mode the indicator stays dark. |
 
 ## 4. Other requirements
 
@@ -560,7 +553,7 @@ and FR-073.
 
 | ID | Question | Plan | Owner | Due |
 |---|---|---|---|---|
-| Q-5 | What colour is the indicator's own Acrylic background in each mode? M-4 measured the taskbar rather than the indicator; light mode was not measured at all. NFR-COL-001 needs both. | Sample the running indicator's background in dark and light mode over a few different windows behind it; record the range. Choose shades against the worst case. | Claude, with Oliver switching the mode | Before the palette shades are fixed |
+| Q-5 | What colour is the indicator's own dark Acrylic background? M-4 measured the taskbar rather than the indicator. Acrylic blurs what is behind it, so a white window behind the indicator lightens it. | Until measured, check shades against the taskbar mean `#1C222F` plus a lighter worst case. Confirm by sampling the running indicator over a white window once the application exists. | Claude | First run of the application |
 
 ### Appendix C: Build order
 
@@ -578,4 +571,5 @@ and FR-073.
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 2 | 2026-09-19 | FR-015, FR-016, FR-040, NFR-COL-001, NFR-COL-002 | Light mode dropped: the indicator is always dark Acrylic; FR-016 retired; one shade per colour. | Owner's decision: dark mode only, "this is for me not the world". |
 | 1 | 2026-09-19 | FR-022 | "Lost" is judged by the monitor's whole rectangle, not its work area; a strip still on its monitor is clamped, not moved. | `TestPlaceClampsSavedPositionOverlappingTaskbar` failed against the baseline wording: a strip whose centre sat over the taskbar was sent to the default corner though its monitor was attached. |
