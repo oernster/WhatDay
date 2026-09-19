@@ -504,7 +504,8 @@ nothing.
 
 **NFR-MAINT-004 Docs**: The repository shall carry `README.md` (with who it is
 for and not for), `ARCHITECTURE.md` (invariants linked to their tests) and
-`VERSION`.
+`VERSION`. The README's header (the `# WhatDay` title and the owner's
+two-line opening beneath it) stays verbatim; everything added goes below it.
 
 ### 3.8 Won't this time
 

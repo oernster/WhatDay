@@ -5,6 +5,9 @@ package domain
 
 import "time"
 
+// ZoneName is the IANA zone WhatDay tells the day in (FR-002).
+const ZoneName = "Europe/London"
+
 // DayName answers the English name of the day of the week at instant in zone,
 // capitalised and in full, for example "Wednesday" (FR-001, FR-002, FR-006).
 func DayName(instant time.Time, zone *time.Location) string {

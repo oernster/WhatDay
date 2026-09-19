@@ -3,9 +3,9 @@ package domain_test
 import (
 	"testing"
 	"time"
-	_ "time/tzdata"
 
 	"github.com/oernster/WhatDay/internal/domain"
+	"github.com/oernster/WhatDay/internal/testsupport"
 )
 
 // Range walked by the exhaustive calendar tests (FR-006).
@@ -16,14 +16,7 @@ const (
 
 var weekdayNames = [...]string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 
-func london(t *testing.T) *time.Location {
-	t.Helper()
-	zone, err := time.LoadLocation("Europe/London")
-	if err != nil {
-		t.Fatalf("load Europe/London: %v", err)
-	}
-	return zone
-}
+var london = testsupport.London
 
 // isLeap is the Gregorian rule, stated here rather than taken from Go.
 func isLeap(year int) bool {
