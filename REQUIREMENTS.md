@@ -356,6 +356,11 @@ test names are planned, not yet written.
   for the dark Acrylic background (Amendment 2).
 - Names (Q-2, decided 2026-09-19), in menu order: Red, Amber, Green, Blue,
   Purple, Neutral (white).
+- Shades, with contrast against the measured taskbar mean `#1C222F` and the
+  provisional worst case `#3A3A3A` (Q-5): Red `#FF6666` 5.57 / 3.98, Amber
+  `#FFB020` 8.70 / 6.22, Green `#4CD964` 8.65 / 6.18, Blue `#5AA8FF`
+  6.43 / 4.59, Purple `#C58CFF` 6.50 / 4.64, Neutral `#FFFFFF` 15.92 / 11.37.
+  Closest pair: Blue and Purple at CIEDE2000 26.4.
 - Verified by: NFR-COL-001 and NFR-COL-002.
 
 **FR-041 Default colour**
