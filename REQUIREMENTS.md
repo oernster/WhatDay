@@ -39,7 +39,8 @@ Out of scope (decided; see also 3.5 Won't this time):
 - A taskbar button, a pinned taskbar button or anything drawn inside the
   taskbar itself (feasibility measured and rejected: Appendix A, M-1).
 - Any background choice. The background is fixed (FR-015).
-- Windows 10, macOS and Linux.
+- Windows 10 and every operating system other than Windows. WhatDay is a
+  Windows application only, permanently.
 - Any network access, including an update check.
 - Correcting the Windows clock. WhatDay trusts the system clock; keeping it
   right is Windows' job (time synchronisation), as is any leap second.

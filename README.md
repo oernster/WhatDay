@@ -29,8 +29,9 @@ Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
   those and WhatDay does not repeat them.
 - Anyone who wants the day in a language other than English, a timezone other
   than the one Windows is set to or a light strip. None of those exist.
-- Windows 10, macOS and Linux users. WhatDay uses the Windows 11 Acrylic
-  backdrop, which first exists in Windows 11 22H2 (build 22621).
+- Windows 10 users. WhatDay is a Windows application and only ever will be; it
+  uses the Windows 11 Acrylic backdrop, which first exists in Windows 11 22H2
+  (build 22621).
 - Anyone with the taskbar at the top, at the side or set to auto-hide. WhatDay
   keeps clear of the taskbar by staying inside the space it reserves.
 
