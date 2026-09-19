@@ -516,7 +516,8 @@ two-line opening beneath it) stays verbatim; everything added goes below it.
 | Background choice | Measured: the alternatives looked alike (M-4). |
 | Auto-hide taskbar support | Rests on A-2; the work area does not exclude an auto-hidden taskbar. |
 | Taskbar at the top or sides | Rests on A-2. |
-| Localisation, other zones | Out of scope (1.3). |
+| Localisation | Out of scope (1.3). Day names are English whatever the zone. |
+| Other zones | Phase 2 candidate: choose from a list of English-speaking regions, names staying English. Not yet specified; see Q-6. The domain already takes the zone as a parameter, so the change is a zone setting plus a menu entry. The per-zone midnight chain test must include a zone whose clocks change at midnight. |
 | Light mode | Amendment 2: the owner uses dark mode only. In light mode the indicator stays dark. |
 
 ## 4. Other requirements
@@ -559,6 +560,7 @@ and FR-073.
 
 | ID | Question | Plan | Owner | Due |
 |---|---|---|---|---|
+| Q-6 | Phase 2 zones: should the menu offer a fixed list of English-speaking regions? The alternative is simply following the Windows timezone. If a list, which regions? | Decide before Phase 2 is specified. | Oliver | Start of Phase 2 |
 | Q-5 | What colour is the indicator's own dark Acrylic background? M-4 measured the taskbar rather than the indicator. Acrylic blurs what is behind it, so a white window behind the indicator lightens it. | Until measured, check shades against the taskbar mean `#1C222F` plus a lighter worst case. Confirm by sampling the running indicator over a white window once the application exists. | Claude | First run of the application |
 
 ### Appendix C: Build order
