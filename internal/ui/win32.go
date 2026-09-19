@@ -19,6 +19,7 @@ var (
 
 	pRegisterClassEx  = user32.NewProc("RegisterClassExW")
 	pCreateWindowEx   = user32.NewProc("CreateWindowExW")
+	pDestroyWindow    = user32.NewProc("DestroyWindow")
 	pDefWindowProc    = user32.NewProc("DefWindowProcW")
 	pGetMessage       = user32.NewProc("GetMessageW")
 	pTranslateMessage = user32.NewProc("TranslateMessage")
@@ -89,6 +90,7 @@ const (
 	wmTray           = 0x8001 // WM_APP + 1
 	wmAppBar         = 0x8002 // WM_APP + 2
 
+	lowWordMask        = 0xFFFF
 	pbtResumeSuspend   = 0x0007
 	pbtResumeAutomatic = 0x0012
 	spiSetWorkArea     = 0x002F

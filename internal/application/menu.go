@@ -10,6 +10,7 @@ const (
 	MenuAbout MenuKind = iota
 	MenuSeparator
 	MenuColour
+	MenuQuit
 )
 
 // MenuItem is one entry of the tray menu. For a colour entry, Label is the
@@ -20,15 +21,19 @@ type MenuItem struct {
 	Checked bool
 }
 
-// AboutLabel is the menu wording for the About entry.
-const AboutLabel = "About " + ProductName
+// Menu wording.
+const (
+	AboutLabel = "About " + ProductName
+	QuitLabel  = "Quit " + ProductName
+)
 
-// Menu answers the whole tray menu (FR-032): About, a separator, then every
-// palette colour in order with the current one checked.
+// Menu answers the whole tray menu (FR-032, Amendment 5): About, a
+// separator, every palette colour in order with the current one checked,
+// another separator, then Quit.
 func (ind *Indicator) Menu() []MenuItem {
 	items := []MenuItem{{Kind: MenuAbout, Label: AboutLabel}, {Kind: MenuSeparator}}
 	for _, c := range domain.Palette() {
 		items = append(items, MenuItem{Kind: MenuColour, Label: c.Name, Checked: c.Name == ind.settings.ColourName})
 	}
-	return items
+	return append(items, MenuItem{Kind: MenuSeparator}, MenuItem{Kind: MenuQuit, Label: QuitLabel})
 }

@@ -116,7 +116,20 @@ func (w *Window) handle(hwnd, message, wParam, lParam, taskbarCreated uintptr) u
 			w.controller.Refresh()
 		}
 		return 1 // TRUE: the broadcast is acknowledged
-	case wmDisplayChange, wmDpiChanged:
+	case wmDpiChanged:
+		dpi := wParam & lowWordMask
+		if w.drag.pressed {
+			// A drag onto a monitor of another scale: the drag sizes the
+			// strip itself. Laying out here would put it back at the saved
+			// position, which is the old one until the drag ends.
+			w.log.Printf("DPI changed to %d during a drag; the drag sizes the strip", dpi)
+			return 0
+		}
+		w.log.Printf("DPI changed to %d", dpi)
+		w.layout()
+		return 0
+	case wmDisplayChange:
+		w.log.Printf("displays changed")
 		w.layout()
 		return 0
 	case wmSettingChange:

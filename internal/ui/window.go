@@ -50,6 +50,7 @@ type dragState struct {
 	pressAt, winAt  point
 	screens         []screen
 	primary         screen
+	over            uintptr // the monitor last dragged over, for the log
 }
 
 // ShowDay paints name, repainting only when it changes (View).
@@ -119,6 +120,7 @@ func (w *Window) layout() {
 	here := screenAt(screens, primary, centre(pos, w.size))
 	w.size = sizeOn(here, primary)
 	pos = w.controller.Placement(w.size, domains(screens), primary.Work)
+	w.log.Printf("laid out at (%d,%d), %dx%d, on a %d DPI monitor", pos.X, pos.Y, w.size.W, w.size.H, here.dpi)
 	w.moveTo(pos, w.size)
 }
 
@@ -168,6 +170,10 @@ func (w *Window) moved() {
 	w.drag.moving = true
 	wanted := domain.Point{X: int(w.drag.winAt.x) + dx, Y: int(w.drag.winAt.y) + dy}
 	here := screenAt(w.drag.screens, w.drag.primary, centre(wanted, w.size))
+	if here.handle != w.drag.over {
+		w.drag.over = here.handle
+		w.log.Printf("dragging over the monitor at (%d,%d), %d DPI", here.Bounds.Left, here.Bounds.Top, here.dpi)
+	}
 	w.size = sizeOn(here, w.drag.primary)
 	w.moveTo(domain.ClampToWork(wanted, w.size, here.Work), w.size)
 }
@@ -183,6 +189,7 @@ func (w *Window) released() {
 	}
 	var r rect
 	_, _, _ = pGetWindowRect.Call(w.hwnd, uintptr(unsafe.Pointer(&r)))
+	w.log.Printf("dragged to (%d,%d)", r.left, r.top)
 	w.controller.MovedTo(domain.Point{X: int(r.left), Y: int(r.top)})
 }
 

@@ -15,12 +15,16 @@ func TestMenuEntriesFollowTheModel(t *testing.T) {
 		{Kind: application.MenuSeparator},
 		{Kind: application.MenuColour, Label: "Red"},
 		{Kind: application.MenuColour, Label: "Amber", Checked: true},
+		{Kind: application.MenuSeparator},
+		{Kind: application.MenuQuit, Label: "Quit WhatDay"},
 	}
 	want := []menuEntry{
 		{id: cmdAbout, flags: mfString, label: "About WhatDay"},
 		{flags: mfSeparator},
 		{id: cmdColourBase, flags: mfString, label: "Red"},
 		{id: cmdColourBase + 1, flags: mfString | mfChecked, label: "Amber"},
+		{flags: mfSeparator},
+		{id: cmdQuit, flags: mfString, label: "Quit WhatDay"},
 	}
 	got := menuEntries(items)
 	if len(got) != len(want) {
@@ -45,6 +49,10 @@ func TestChosenResolvesCommands(t *testing.T) {
 	}
 	if e, ok := chosen(entries, cmdAbout); !ok || e.id != cmdAbout {
 		t.Errorf("about command: got %+v, %v", e, ok)
+	}
+	quit := menuEntries([]application.MenuItem{{Kind: application.MenuQuit, Label: "Quit WhatDay"}})
+	if e, ok := chosen(quit, cmdQuit); !ok || e.label != "Quit WhatDay" {
+		t.Errorf("quit command: got %+v, %v", e, ok)
 	}
 	// A dismissed menu answers 0, which must not match the separator's id.
 	if _, ok := chosen(entries, 0); ok {

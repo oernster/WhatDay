@@ -41,7 +41,6 @@ Out of scope (decided; see also 3.5 Won't this time):
 - Any background choice. The background is fixed (FR-015).
 - Windows 10, macOS and Linux.
 - Any network access, including an update check.
-- An Exit item in the menu.
 - Correcting the Windows clock. WhatDay trusts the system clock; keeping it
   right is Windows' job (time synchronisation), as is any leap second.
 
@@ -358,8 +357,18 @@ test names are planned, not yet written.
 **FR-032 Menu contents**
 - Priority: Must
 - Requirement: The menu shall contain exactly: `About WhatDay`, a separator,
-  then one item per palette colour with the current colour checked.
-- Verified by: `internal/application/menu_test.go::TestMenuModel`
+  one item per palette colour with the current colour checked, a separator,
+  then `Quit WhatDay` (Amendment 5).
+- Verified by: `internal/application/menu_test.go::TestMenuModel`,
+  `internal/ui/ui_test.go::TestMenuEntriesFollowTheModel`
+
+**FR-035 Quit**
+- Priority: Must
+- Requirement: When `Quit WhatDay` is chosen, WhatDay shall remove its tray
+  icon, close the indicator and exit, releasing the single-instance lock. It
+  shall start again at the next login (FR-060). (Amendment 5.)
+- Verified by: manual; the log records `quit from the tray` and the process
+  ends.
 
 **FR-033 Choose a colour**
 - Priority: Must
@@ -540,7 +549,6 @@ two-line opening beneath it) stays verbatim; everything added goes below it.
 | Item | Reason |
 |---|---|
 | Update check | Personal tool; no network (NFR-PRIV-001). |
-| Exit menu item | "That is all"; uninstall or Task Manager stops it. |
 | Background choice | Measured: the alternatives looked alike (M-4). |
 | Auto-hide taskbar support | Rests on A-2; the work area does not exclude an auto-hidden taskbar. |
 | Taskbar at the top or sides | Rests on A-2. |
@@ -606,6 +614,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 5 | 2026-09-19 | FR-032, new FR-035, scope, Won't list | The tray menu ends with a separator and `Quit WhatDay`. | Owner's decision after the first run: without it the only way to stop WhatDay was Task Manager. |
 | 4 | 2026-09-19 | FR-002, FR-003 to FR-006, new FR-007 and FR-008, scope, glossary, Q-6 | The day follows the zone Windows is set to, re-read at every refresh, instead of Europe/London. Midnight is the first instant the local date moves on, found by bisection where clocks jump at 00:00. | Owner's decision: an English speaker may travel with the laptop. Measured: the naive midnight was wrong at 746 midnights across 598 zones from 2000 to 2100; Go's time.Local is read once per process, so it cannot follow a zone change. |
 | 3 | 2026-09-19 | FR-034 | About states the copyright and the open-source works used, with their licences; the version and WhatDay's own licence are no longer shown there. | Owner's decision: About "should simply" credit the open-source providers and the author. Licences read from each work's own LICENSE or README. |
 | 2 | 2026-09-19 | FR-015, FR-016, FR-040, NFR-COL-001, NFR-COL-002 | Light mode dropped: the indicator is always dark Acrylic; FR-016 retired; one shade per colour. | Owner's decision: dark mode only, "this is for me not the world". |

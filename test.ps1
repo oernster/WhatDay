@@ -79,6 +79,10 @@ try {
 # failures that cannot be caused on demand: a write failing straight after a
 # successful open; Go refusing a crash-output file.
 #
+# setup sits at its route, extraction and step log. Its registry, shortcut and
+# process work change the real machine, so the install on the reference
+# machine is its test rather than every run of the suite.
+#
 # zone sits below 100 by three failures that cannot be caused on demand:
 # Windows refusing the zone query, icu.dll missing, ICU reporting an error.
 #
@@ -90,8 +94,9 @@ $measured = [ordered]@{
     './internal/infrastructure/instance' = 100
     './internal/infrastructure/runlog'   = 74
     './internal/infrastructure/settings' = 100
+    './internal/infrastructure/setup'    = 54
     './internal/infrastructure/zone'     = 92
-    './internal/ui'                      = 30
+    './internal/ui'                      = 29
 }
 
 Write-Host 'Measuring infrastructure...'

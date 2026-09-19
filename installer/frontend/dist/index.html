@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WhatDay Setup</title>
+    <!-- Ported from PigeonPost's setup page. Colours: the accent is sampled from
+         WhatDay's icon; the ring model is none at rest, green on hover or focus. -->
+    <style>
+        :root {
+            --bg: #16181d;
+            --bg-elev: #1e222a;
+            --bg-elev-2: #262b34;
+            --border: #303743;
+            --text: #e6e9ef;
+            --text-dim: #9aa4b2;
+            --accent: #28aaff;
+            --accent-ink: #06121c;
+            --glow: rgba(40, 170, 255, 0.14);
+            --ring: #3fb950;
+            --danger: #ff6b6b;
+            --danger-soft: rgba(255, 107, 107, 0.12);
+            --ok: #6ee7a0;
+            --font: "Segoe UI", system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { height: 100%; margin: 0; }
+
+        body {
+            background: radial-gradient(700px 460px at 50% 0%, var(--glow) 0%, var(--bg) 70%) var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .app { height: 100vh; display: flex; flex-direction: column; padding: 22px 30px 20px; }
+
+        .head { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+
+        .head img { width: 126px; height: 126px; }
+
+        .head .title { font-size: 32px; font-weight: 700; white-space: nowrap; }
+
+        .head .sub { font-size: 14px; color: var(--text-dim); }
+
+        .body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        .screen { display: none; }
+
+        .screen.active { display: block; }
+
+        h1 { font-size: 22px; margin: 0 0 8px; letter-spacing: -0.3px; }
+
+        p.lead { color: var(--text-dim); margin: 0 0 16px; line-height: 1.6; }
+
+        .infobox {
+            background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px;
+            padding: 12px 14px; font-size: 13px; color: var(--text-dim); word-break: break-all;
+        }
+
+        .infobox .path { color: var(--text); }
+
+        .option { position: relative; display: flex; align-items: center; gap: 10px; margin-top: 16px; cursor: pointer; }
+
+        /* Hidden from sight but not from the keyboard: Tab reaches it, Space ticks it. */
+        .option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+        .check {
+            width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--border);
+            background: var(--bg-elev); display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all 0.15s ease;
+        }
+
+        .option:hover .check, .option input:focus-visible + .check { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+        .option input:checked + .check { background: var(--accent); border-color: var(--accent); }
+
+        .check::after {
+            content: ""; width: 6px; height: 10px; border: solid var(--accent-ink); border-width: 0 2px 2px 0;
+            transform: rotate(45deg) scale(0); transition: transform 0.15s ease;
+        }
+
+        .option input:checked + .check::after { transform: rotate(45deg) scale(1); }
+
+        .version-flow { display: flex; align-items: center; gap: 12px; font-size: 18px; margin: 6px 0 16px; }
+
+        .version-flow .old { color: var(--text-dim); }
+
+        .version-flow .arrow { color: var(--accent); }
+
+        .version-flow .new { color: var(--text); font-weight: 700; }
+
+        .footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); min-height: 61px; }
+
+        .btn {
+            border: 1px solid var(--border); background: var(--bg-elev-2); color: var(--text);
+            border-radius: 9px; padding: 11px 22px; font-size: 14px; font-weight: 600;
+            cursor: pointer; font-family: inherit; outline: none;
+        }
+
+        .btn:hover, .btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+        .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+        .btn.danger { background: var(--danger-soft); border-color: rgba(255, 107, 107, 0.5); color: var(--danger); }
+
+        .progress-track {
+            height: 10px; background: var(--bg-elev); border: 1px solid var(--border);
+            border-radius: 999px; overflow: hidden; margin: 18px 0 10px;
+        }
+
+        .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+
+        .status { color: var(--text-dim); font-size: 13px; }
+
+        .mark { font-size: 40px; margin-bottom: 10px; }
+
+        .center { text-align: center; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="head">
+        <img src="icon.png" alt=""/>
+        <div>
+            <div class="title">WhatDay</div>
+            <div class="sub">What fucking day is it?</div>
+        </div>
+    </div>
+
+    <div class="body">
+        <section class="screen" id="screen-install">
+            <h1>Install WhatDay</h1>
+            <p class="lead" id="install-lead"></p>
+            <div class="infobox">Install location<br/><span class="path" id="install-path"></span></div>
+            <label class="option"><input type="checkbox" id="launch-install"/><span class="check"></span>
+                <span>Start WhatDay when setup finishes</span></label>
+        </section>
+
+        <section class="screen" id="screen-change">
+            <h1 id="change-title"></h1>
+            <p class="lead" id="change-lead"></p>
+            <div class="version-flow"><span class="old" id="change-old"></span><span class="arrow">&rarr;</span><span class="new" id="change-new"></span></div>
+            <label class="option"><input type="checkbox" id="launch-change"/><span class="check"></span>
+                <span>Start WhatDay when setup finishes</span></label>
+        </section>
+
+        <section class="screen" id="screen-manage">
+            <h1>WhatDay is installed</h1>
+            <p class="lead" id="manage-lead"></p>
+            <label class="option"><input type="checkbox" id="launch-manage"/><span class="check"></span>
+                <span>Start WhatDay when setup finishes</span></label>
+        </section>
+
+        <section class="screen" id="screen-uninstall">
+            <h1>Remove WhatDay?</h1>
+            <p class="lead">This removes WhatDay, its Start Menu shortcut, its sign-in entry, its settings and its log.</p>
+        </section>
+
+        <section class="screen" id="screen-running">
+            <h1>WhatDay is open</h1>
+            <p class="lead">WhatDay is running and must close before setup can go on.</p>
+        </section>
+
+        <section class="screen" id="screen-progress">
+            <h1 id="progress-title"></h1>
+            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="status" id="progress-status"></div>
+        </section>
+
+        <section class="screen center" id="screen-verdict">
+            <div class="mark" id="verdict-mark"></div>
+            <h1 id="verdict-title"></h1>
+            <p class="lead" id="verdict-line"></p>
+        </section>
+    </div>
+
+    <div class="footer" id="footer"></div>
+</div>
+
+<script>
+    const $ = (id) => document.getElementById(id)
+    const backend = () => window.go && window.go.main && window.go.main.App
+    let state = null
+
+    function showScreen(name) {
+        document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'))
+        $('screen-' + name).classList.add('active')
+    }
+
+    // The footer belongs to the screen: rebuilt for each one, never relabelled.
+    function setFooter(actions) {
+        const footer = $('footer')
+        footer.innerHTML = ''
+        actions.forEach((a) => {
+            const el = document.createElement('button')
+            el.className = 'btn' + (a.kind ? ' ' + a.kind : '')
+            el.textContent = a.label
+            el.onclick = a.onClick
+            footer.appendChild(el)
+        })
+    }
+
+    const close = {label: 'Close', kind: 'primary', onClick: () => backend().Quit()}
+
+    function verdict(ok, title, line) {
+        $('verdict-mark').textContent = ok ? '✓' : '⚠'
+        $('verdict-mark').style.color = ok ? 'var(--ok)' : 'var(--danger)'
+        $('verdict-title').textContent = title
+        $('verdict-line').textContent = line
+        showScreen('verdict')
+        setFooter([close])
+    }
+
+    const failed = (e) => verdict(false, 'Something went wrong', String(e) + '. The steps are recorded in ' + state.stepLog + '.')
+
+    // Work moves to the progress screen, which offers no actions at all.
+    async function run(work, title, doneTitle, doneLine, launch) {
+        $('progress-title').textContent = title
+        $('progress-fill').style.width = '0'
+        $('progress-status').textContent = ''
+        setFooter([])
+        showScreen('progress')
+        try {
+            await work()
+            if (launch) {
+                await backend().LaunchApp()
+                backend().Quit()
+                return
+            }
+            verdict(true, doneTitle, doneLine)
+        } catch (e) {
+            failed(e)
+        }
+    }
+
+    // Asked before any file is touched: extracting over a running WhatDay.exe
+    // would fail partway and leave a half-written install.
+    async function withAppClosed(proceed) {
+        if (!(await backend().AppRunning())) return proceed()
+        showScreen('running')
+        setFooter([
+            {label: 'Cancel', onClick: () => route()},
+            {label: 'Close WhatDay and continue', kind: 'primary', onClick: async () => {
+                setFooter([])
+                try { await backend().CloseRunningApp() } catch (e) { return failed(e) }
+                proceed()
+            }},
+        ])
+    }
+
+    const install = (title, doneTitle, doneLine, box) => withAppClosed(() =>
+        run(() => backend().Install(), title, doneTitle, doneLine, $(box).checked))
+
+    const uninstallAction = {label: 'Uninstall', kind: 'danger', onClick: () => showUninstall()}
+
+    function showInstall() {
+        $('install-lead').textContent = 'Version ' + state.thisVersion + ', for your account only: no administrator rights. WhatDay starts when you sign in.'
+        $('install-path').textContent = state.installDir
+        $('launch-install').checked = true
+        showScreen('install')
+        setFooter([
+            {label: 'Cancel', onClick: () => backend().Quit()},
+            {label: 'Install', kind: 'primary', onClick: () => install('Installing WhatDay', 'WhatDay installed',
+                'Start it from the Start Menu. It starts by itself when you sign in.', 'launch-install')},
+        ])
+    }
+
+    function showChange(going) {
+        const update = going === 'update'
+        $('change-title').textContent = update ? 'Update WhatDay' : 'Go back to an older WhatDay'
+        $('change-lead').textContent = update
+            ? 'A newer version is ready to install. Your colour and position are kept.'
+            : 'The installed version is newer than this one. Going back replaces it; your colour and position are kept.'
+        $('change-old').textContent = 'v' + state.installedVersion
+        $('change-new').textContent = 'v' + state.thisVersion
+        $('launch-change').checked = true
+        showScreen('change')
+        const label = update ? 'Update' : 'Go back'
+        setFooter([
+            uninstallAction,
+            {label: 'Cancel', onClick: () => backend().Quit()},
+            {label: label, kind: 'primary', onClick: () => install(update ? 'Updating WhatDay' : 'Going back',
+                update ? 'WhatDay updated' : 'WhatDay replaced', 'You are now on v' + state.thisVersion + '.', 'launch-change')},
+        ])
+    }
+
+    function showManage() {
+        $('manage-lead').textContent = 'Version ' + state.installedVersion + ' is installed, the same as this setup. Repair puts its files and entries back; nothing else changes.'
+        $('launch-manage').checked = true
+        showScreen('manage')
+        setFooter([
+            uninstallAction,
+            {label: 'Close', onClick: () => backend().Quit()},
+            {label: 'Repair', kind: 'primary', onClick: () => install('Repairing WhatDay', 'Repair complete',
+                'WhatDay has been put back in place.', 'launch-manage')},
+        ])
+    }
+
+    // Removal is reachable from every screen; the route never becomes it, so
+    // Cancel returns to the route screen, else closes when removal was the
+    // only reason setup was open.
+    function showUninstall() {
+        showScreen('uninstall')
+        setFooter([
+            {label: 'Cancel', onClick: () => state.route === 'uninstall' ? backend().Quit() : route()},
+            {label: 'Uninstall', kind: 'danger', onClick: () => withAppClosed(() =>
+                run(() => backend().Uninstall(), 'Removing WhatDay', 'WhatDay removed', 'WhatDay has been uninstalled.', false))},
+        ])
+    }
+
+    function route() {
+        switch (state.route) {
+            case 'uninstall': return showUninstall()
+            case 'update':
+            case 'downgrade': return showChange(state.route)
+            case 'manage': return showManage()
+            default: return showInstall()
+        }
+    }
+
+    async function init() {
+        for (let tries = 0; !backend() && tries < 100; tries++) {
+            await new Promise((r) => setTimeout(r, 50))
+        }
+        if (!backend()) {
+            state = {stepLog: 'the temporary folder'}
+            return verdict(false, 'Setup could not start', 'The setup window could not reach setup itself.')
+        }
+        window.runtime.EventsOn('progress', (p) => {
+            $('progress-fill').style.width = p.pct + '%'
+            $('progress-status').textContent = p.msg
+        })
+        state = await backend().DetectState()
+        route()
+    }
+
+    window.addEventListener('DOMContentLoaded', init)
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import (
 // is dismissed, so no entry uses it.
 const (
 	cmdAbout      = 1
+	cmdQuit       = 2
 	cmdColourBase = 100
 )
 
@@ -30,6 +31,8 @@ func menuEntries(items []application.MenuItem) []menuEntry {
 			entries = append(entries, menuEntry{id: cmdAbout, flags: mfString, label: item.Label})
 		case application.MenuSeparator:
 			entries = append(entries, menuEntry{flags: mfSeparator})
+		case application.MenuQuit:
+			entries = append(entries, menuEntry{id: cmdQuit, flags: mfString, label: item.Label})
 		case application.MenuColour:
 			flags := uintptr(mfString)
 			if item.Checked {
@@ -78,6 +81,11 @@ func (w *Window) showMenu() {
 	case !ok:
 	case entry.id == cmdAbout:
 		w.showAbout()
+	case entry.id == cmdQuit:
+		// Destroying the window removes the tray icon and ends the loop;
+		// main then releases the single-instance lock (Amendment 5).
+		w.log.Printf("quit from the tray")
+		_, _, _ = pDestroyWindow.Call(w.hwnd)
 	default:
 		w.controller.ChooseColour(entry.label)
 	}

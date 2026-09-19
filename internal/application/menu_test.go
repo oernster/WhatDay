@@ -20,6 +20,8 @@ func TestMenuModel(t *testing.T) {
 		{Kind: application.MenuColour, Label: "Blue"},
 		{Kind: application.MenuColour, Label: "Purple"},
 		{Kind: application.MenuColour, Label: "Neutral"},
+		{Kind: application.MenuSeparator},
+		{Kind: application.MenuQuit, Label: "Quit WhatDay"},
 	}
 	got := r.ind.Menu()
 	if len(got) != len(want) {

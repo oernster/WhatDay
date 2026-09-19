@@ -29,8 +29,15 @@ except ImportError:  # pragma: no cover - a plain message beats a traceback
 # looks soft.
 ICO_SIZES = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
 
+# HEADER_SIZE is the setup window's header mark: about twice the 126 px it is
+# drawn at, so it stays crisp on a high-density display. That page has no
+# bundler, so it loads the file as it finds it; shipping the master there
+# would put over a megabyte behind one picture.
+HEADER_SIZE = 256
+
 REPO = pathlib.Path(__file__).resolve().parent.parent
 MASTER = REPO / "assets" / "application-icon.png"
+HEADER = REPO / "installer" / "frontend" / "dist" / "icon.png"
 
 
 def trimmed(master: pathlib.Path) -> Image.Image:
@@ -59,6 +66,13 @@ def main() -> int:
     ico = MASTER.with_suffix(".ico")
     written = render_ico(MASTER, ico)
     print(f"{MASTER.name} {MASTER.stat().st_size:,} -> {written:,} bytes ({ico.name})")
+
+    header = trimmed(MASTER)
+    side = max(header.size)
+    canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    canvas.paste(header, ((side - header.width) // 2, (side - header.height) // 2), header)
+    canvas.resize((HEADER_SIZE, HEADER_SIZE), Image.LANCZOS).save(HEADER, "PNG", optimize=True)
+    print(f"setup header {HEADER.stat().st_size:,} bytes ({HEADER.relative_to(REPO)})")
     return 0
 
 
