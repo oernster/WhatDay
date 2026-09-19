@@ -18,7 +18,7 @@ Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
 
 ## Who it is for
 
-- Anyone on Windows 11 whose clock shows `14:32  19/09/2026` and who still has
+- Anyone on Windows whose clock shows `14:32  19/09/2026` and who still has
   to work out what day that is.
 - People who work from home, keep odd hours or have just come back from
   leave, for whom the days have stopped having names.
@@ -67,7 +67,8 @@ nothing, on purpose.
 
 ## Install
 
-WhatDay needs Windows 11 22H2 (build 22621) or later.
+WhatDay runs on Windows. It is built and tested on Windows 11, where the strip
+gets its translucent Acrylic backdrop (22H2 and later).
 
 1. Download `WhatDaySetup.exe` from the
    [Releases page](https://github.com/oernster/WhatDay/releases).
