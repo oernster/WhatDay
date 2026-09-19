@@ -26,6 +26,40 @@ func TestSizeFitsWidestDay(t *testing.T) {
 	}
 }
 
+func TestTaskbarHeightFromWorkArea(t *testing.T) {
+	t.Parallel()
+	// Measured: bounds bottom 1440, work bottom 1392 (M-5), a 48 px taskbar.
+	if got := domain.TaskbarHeight(measuredMonitor); got != 48 {
+		t.Fatalf("got %d, want 48", got)
+	}
+}
+
+func TestIndicatorHeightUsesOwnTaskbar(t *testing.T) {
+	t.Parallel()
+	const standardDPI, highDPI = 96, 240
+	// Illustrative 250% monitor with its own 120 px taskbar.
+	high := domain.Monitor{
+		Bounds: domain.Rect{Left: -3840, Top: 0, Right: 0, Bottom: 2400},
+		Work:   domain.Rect{Left: -3840, Top: 0, Right: 0, Bottom: 2280},
+	}
+	if got := domain.IndicatorHeight(high, highDPI, measuredMonitor, standardDPI); got != 120 {
+		t.Fatalf("got %d, want 120", got)
+	}
+}
+
+func TestIndicatorHeightWithoutTaskbarScalesPrimary(t *testing.T) {
+	t.Parallel()
+	const standardDPI, highDPI = 96, 240
+	bare := domain.Monitor{
+		Bounds: domain.Rect{Left: -3840, Top: 0, Right: 0, Bottom: 2400},
+		Work:   domain.Rect{Left: -3840, Top: 0, Right: 0, Bottom: 2400},
+	}
+	// 48 px at 96 DPI is 120 px at 240 DPI.
+	if got := domain.IndicatorHeight(bare, highDPI, measuredMonitor, standardDPI); got != 120 {
+		t.Fatalf("got %d, want 120", got)
+	}
+}
+
 func TestFontHeight(t *testing.T) {
 	t.Parallel()
 	if got := domain.FontHeight(48); got != 26 {

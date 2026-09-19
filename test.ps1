@@ -78,11 +78,20 @@ try {
 # coverage cannot see into another process. The rest of the shortfall is two
 # failures that cannot be caused on demand: a write failing straight after a
 # successful open; Go refusing a crash-output file.
+#
+# zone sits below 100 by three failures that cannot be caused on demand:
+# Windows refusing the zone query, icu.dll missing, ICU reporting an error.
+#
+# ui is the Win32 surface. Its menu mapping, drawing, icon and monitor reading
+# are tested; the message loop and window handling need a desktop and a person
+# at it, so they are verified by hand against REQUIREMENTS.md.
 $measured = [ordered]@{
     './internal/infrastructure/clock'    = 100
     './internal/infrastructure/instance' = 100
     './internal/infrastructure/runlog'   = 74
     './internal/infrastructure/settings' = 100
+    './internal/infrastructure/zone'     = 92
+    './internal/ui'                      = 30
 }
 
 Write-Host 'Measuring infrastructure...'

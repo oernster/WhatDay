@@ -33,6 +33,23 @@ func IndicatorSize(taskbarHeight, widestText int) Size {
 	return Size{W: widestText + 2*pad, H: taskbarHeight}
 }
 
+// TaskbarHeight answers the height of a monitor's taskbar: the part of the
+// monitor below its work area, since the taskbar sits at the bottom (A-2).
+// It is zero on a monitor that shows no taskbar.
+func TaskbarHeight(m Monitor) int {
+	return m.Bounds.Bottom - m.Work.Bottom
+}
+
+// IndicatorHeight answers the indicator's height on monitor m (FR-014): its
+// own taskbar's height, which is already in that monitor's pixels. A monitor
+// with no taskbar borrows the primary monitor's, scaled by the two DPIs.
+func IndicatorHeight(m Monitor, dpi int, primary Monitor, primaryDPI int) int {
+	if own := TaskbarHeight(m); own > 0 {
+		return own
+	}
+	return int(math.Round(float64(TaskbarHeight(primary)) * float64(dpi) / float64(primaryDPI)))
+}
+
 // FontHeight answers the day name's character height for an indicator of the
 // given height.
 func FontHeight(indicatorHeight int) int {

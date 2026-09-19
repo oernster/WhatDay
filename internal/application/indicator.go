@@ -9,18 +9,19 @@ import (
 // Indicator is the one use-case object behind the indicator and its menu.
 type Indicator struct {
 	clock     Clock
-	zone      *time.Location
+	zones     Zones
 	view      View
 	scheduler Scheduler
 	store     SettingsStore
 	log       Log
 	settings  Settings
+	zone      *time.Location
+	zoneFault string
 }
 
-// NewIndicator wires the use cases to their ports. zone is Europe/London,
-// loaded by the composition root from the embedded zone data.
-func NewIndicator(clock Clock, zone *time.Location, view View, scheduler Scheduler, store SettingsStore, log Log) *Indicator {
-	return &Indicator{clock: clock, zone: zone, view: view, scheduler: scheduler, store: store, log: log}
+// NewIndicator wires the use cases to their ports.
+func NewIndicator(clock Clock, zones Zones, view View, scheduler Scheduler, store SettingsStore, log Log) *Indicator {
+	return &Indicator{clock: clock, zones: zones, view: view, scheduler: scheduler, store: store, log: log}
 }
 
 // Start loads the settings, paints the colour and the day, then arms the
@@ -49,15 +50,37 @@ func (ind *Indicator) loadSettings() Settings {
 	return loaded
 }
 
-// Refresh paints the London day of the current instant and re-arms the
-// wake-up for the next London midnight. It is the single response to the
-// midnight wake-up, to resume from sleep and to a clock change (FR-003,
-// FR-004, FR-005). A wake-up that fires early re-arms the same midnight, so
-// it cannot show the wrong day.
+// Refresh paints the day of the current instant in the zone Windows is set
+// to, then re-arms the wake-up for that zone's next midnight. It is the single
+// response to the midnight wake-up, to resume from sleep, to a clock or zone
+// change (FR-002 to FR-005). A wake-up that fires early re-arms the same
+// midnight, so it cannot show the wrong day.
 func (ind *Indicator) Refresh() {
+	zone := ind.currentZone()
 	now := ind.clock.Now()
-	ind.view.ShowDay(domain.DayName(now, ind.zone))
-	ind.scheduler.WakeAt(domain.NextMidnight(now, ind.zone))
+	ind.view.ShowDay(domain.DayName(now, zone))
+	ind.scheduler.WakeAt(domain.NextMidnight(now, zone))
+}
+
+// currentZone asks for the zone, logging a change of zone and a change of
+// fault once each rather than on every refresh.
+func (ind *Indicator) currentZone() *time.Location {
+	zone, err := ind.zones.Current()
+	fault := ""
+	if err != nil {
+		fault = err.Error()
+	}
+	if fault != ind.zoneFault {
+		if fault != "" {
+			ind.log.Printf("timezone unreadable, using %s: %s", zone, fault)
+		}
+		ind.zoneFault = fault
+	}
+	if ind.zone == nil || zone.String() != ind.zone.String() {
+		ind.log.Printf("timezone %s", zone)
+	}
+	ind.zone = zone
+	return zone
 }
 
 // ChooseColour repaints the day name in the named colour and saves the

@@ -3,6 +3,7 @@ package application_test
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -66,10 +67,31 @@ func (l *fakeLog) Printf(format string, args ...any) {
 	l.lines = append(l.lines, fmt.Sprintf(format, args...))
 }
 
+// about answers the lines that mention word.
+func (l *fakeLog) about(word string) []string {
+	var found []string
+	for _, line := range l.lines {
+		if strings.Contains(line, word) {
+			found = append(found, line)
+		}
+	}
+	return found
+}
+
+// fakeZones answers zone and err, as a Zones port does: a usable zone always,
+// an error beside it when the real zone could not be read.
+type fakeZones struct {
+	zone *time.Location
+	err  error
+}
+
+func (z *fakeZones) Current() (*time.Location, error) { return z.zone, z.err }
+
 // rig is an Indicator wired to fakes.
 type rig struct {
 	ind       *application.Indicator
 	clock     *fakeClock
+	zones     *fakeZones
 	view      *fakeView
 	scheduler *fakeScheduler
 	store     *fakeStore
@@ -80,8 +102,7 @@ var london = testsupport.London
 
 func newRig(t *testing.T, now time.Time, store *fakeStore) rig {
 	t.Helper()
-	zone := london(t)
-	r := rig{clock: &fakeClock{now: now}, view: &fakeView{}, scheduler: &fakeScheduler{}, store: store, log: &fakeLog{}}
-	r.ind = application.NewIndicator(r.clock, zone, r.view, r.scheduler, r.store, r.log)
+	r := rig{clock: &fakeClock{now: now}, zones: &fakeZones{zone: london(t)}, view: &fakeView{}, scheduler: &fakeScheduler{}, store: store, log: &fakeLog{}}
+	r.ind = application.NewIndicator(r.clock, r.zones, r.view, r.scheduler, r.store, r.log)
 	return r
 }

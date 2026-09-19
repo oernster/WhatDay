@@ -22,8 +22,9 @@ built for one person and makes no attempt to serve anyone else.
 
 In scope:
 
-- A borderless, always-on-top strip showing the current day name in
-  Europe/London.
+- A borderless, always-on-top strip showing the current day name, in
+  English, in whatever timezone Windows is set to, so it follows a laptop
+  that travels (Amendment 4).
 - A notification-area (tray) icon whose menu is the only control surface.
 - A choice of colour for the day name, remembered across restarts.
 - The strip's position, chosen by dragging, remembered across restarts.
@@ -33,8 +34,7 @@ In scope:
 Out of scope (decided; see also 3.5 Won't this time):
 
 - Any language other than English.
-- Any timezone other than Europe/London, including following the Windows
-  timezone setting.
+- A timezone choice inside WhatDay. The zone is the one Windows is set to.
 - Showing the date, the time or a week number.
 - A taskbar button, a pinned taskbar button or anything drawn inside the
   taskbar itself (feasibility measured and rejected: Appendix A, M-1).
@@ -52,8 +52,9 @@ Out of scope (decided; see also 3.5 Won't this time):
 | Indicator | The borderless strip that shows the day name. |
 | Tray icon | WhatDay's icon in the Windows notification area. |
 | Menu | The popup menu opened from the tray icon. |
-| London day | The day of the week of the current instant in the IANA zone Europe/London (GMT in winter, BST in summer). |
-| London midnight | The instant at which the Europe/London civil date changes. |
+| Windows zone | The timezone Windows is set to now, by hand or by "Set time zone automatically". WhatDay reads its key and translates it to an IANA zone with Windows' own ICU. |
+| Local day | The day of the week of the current instant in the Windows zone. |
+| Local midnight | The first instant at which the Windows zone's civil date moves on. Where clocks jump forward at 00:00, that is the moment of the jump. |
 | System clock | The Windows clock as the process reads it. Every "within 1 s" in this document is measured against it. |
 | Gregorian calendar | The proleptic Gregorian calendar: a year is a leap year when divisible by 4, except century years, which are leap years only when divisible by 400 (2000 and 2400 leap; 1900 and 2100 common). |
 | Windows mode | The Windows setting "Choose your default Windows mode", stored as `SystemUsesLightTheme`. It is what the taskbar follows; it is distinct from the app mode. |
@@ -108,7 +109,7 @@ that build.
 
 | ID | Assumption | Owner | Status |
 |---|---|---|---|
-| A-1 | UK daylight saving rules do not change during the product's life. If they do, a rebuild with a newer Go toolchain carries the new rules. | Oliver | Confirmed 2026-09-19 |
+| A-1 | Timezone rules change now and then (a country moves its clocks). The rules are embedded in the binary, so a change reaches WhatDay by rebuilding with a newer Go toolchain; until then the affected zone may be wrong. | Oliver | Confirmed 2026-09-19; widened from UK rules by Amendment 4 |
 | A-2 | The taskbar stays at the bottom edge and is not set to auto-hide. The work-area rule (FR-018) relies on a taskbar that reserves space. | Oliver | Confirmed 2026-09-19 |
 | A-3 | Oliver supplies the tray, application and installer artwork as a master PNG with a transparent background. | Oliver | Confirmed and met 2026-09-19: `assets/application-icon.png`, 1254x1254 RGBA, all four corners alpha 0 (measured, Appendix A M-8). |
 
@@ -121,40 +122,61 @@ test names are planned, not yet written.
 
 **FR-001 Day name**
 - Priority: Must
-- Requirement: The indicator shall display the London day as one of
+- Requirement: The indicator shall display the local day as one of
   `Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`, `Saturday` or
   `Sunday`: English, full word, initial capital.
 - Acceptance: Given the instant 2026-09-19T15:44:49+01:00, the indicator reads
   `Saturday`.
 - Verified by: `internal/domain/day_test.go::TestDayNameAtInstant`
 
-**FR-002 Europe/London regardless of Windows timezone**
+**FR-002 Follow the Windows zone** (Amendment 4)
 - Priority: Must
-- Requirement: The day service shall derive the London day from Europe/London
-  civil time whatever timezone Windows is set to.
-- Acceptance: Given Windows set to UTC-10:00 and the instant
-  2026-09-19T23:30:00+01:00 (London Saturday, Hawaii Saturday 12:30), then at
-  2026-09-20T00:30:00+01:00 the indicator reads `Sunday` while Hawaii is still
-  on Saturday.
-- Verified by: `internal/domain/day_test.go::TestDayIgnoresLocalZone`
+- Requirement: The day service shall derive the local day from the zone
+  Windows is set to at each refresh, so a change of zone while WhatDay runs
+  takes effect within 1 minute. Day names stay English in every zone.
+- Acceptance: At 22:30 UTC on Saturday 19 September 2026: in London the
+  indicator reads `Saturday` and waits for 23:00 UTC; after the zone changes
+  to New York it reads `Saturday` and waits for 04:00 UTC; after it changes to
+  Sydney it reads `Sunday`.
+- Verified by: `internal/application/zone_test.go::TestTravelFollowsNewZone`;
+  `internal/infrastructure/zone/zone_test.go` (key to IANA name through ICU,
+  measured on the reference machine).
 
-**FR-003 Change at London midnight**
+**FR-007 Zone failure**
 - Priority: Must
-- Requirement: When London midnight passes, the indicator shall show the new
+- Requirement: If the Windows zone cannot be read or translated, then the day
+  service shall keep using the last zone it read (else the zone Go read at
+  startup) and shall log the fault once until it changes.
+- Verified by: `zone_test.go::TestFailureAnswersTheLastGoodZone`,
+  `internal/application/zone_test.go::TestZoneFaultLoggedOncePerFault`
+
+**FR-008 Daylight saving switched off**
+- Priority: Must
+- Requirement: Where "Adjust for daylight saving time automatically" is off,
+  the day service shall keep the zone's standard offset all year, as the
+  Windows clock does.
+- Verified by: `zone_test.go::TestDaylightSavingOffKeepsStandardTime`
+
+**FR-003 Change at local midnight**
+- Priority: Must
+- Requirement: When local midnight passes, the indicator shall show the new
   day name within 1 s.
 - Rationale: "It will always accurately change at midnight."
-- Acceptance: Given the scheduler computes the next London midnight after
+- Acceptance: In London, given the scheduler computes the next midnight after
   2026-03-29T12:00:00+01:00 (the first BST day, 23 hours long), then the
   answer is 2026-03-29T23:00:00Z. Given 2026-10-25T12:00:00Z (the first GMT
-  day, 25 hours long), then the answer is 2026-10-26T00:00:00Z.
-- Verified by: `internal/domain/midnight_test.go::TestNextMidnightAcrossTransitions`
-  plus a manual observation at a real midnight (Appendix B).
+  day, 25 hours long), then the answer is 2026-10-26T00:00:00Z. In
+  America/Sao_Paulo, whose clocks jumped from 00:00 to 01:00 on 2018-11-04,
+  Sunday begins at 03:00 UTC, the moment of the jump.
+- Verified by: `internal/domain/midnight_test.go::TestNextMidnightAcrossTransitions`,
+  `internal/domain/zones_test.go::TestMidnightInAGapStartsAtTheJump` plus a
+  manual observation at a real midnight.
 
 **FR-004 Resume from sleep**
 - Priority: Must
 - Requirement: When the machine resumes from sleep or hibernation, the
-  indicator shall show the London day of the resume instant within 1 s.
-- Acceptance: Given the machine sleeps on Monday 23:50 London time and resumes
+  indicator shall show the local day of the resume instant within 1 s.
+- Acceptance: Given the machine sleeps on Monday 23:50 local time and resumes
   on Tuesday 07:00, then within 1 s of resume the indicator reads `Tuesday`.
 - Verified by: `internal/application/refresh_test.go::TestResumeReevaluates`
   (fake clock plus fake power event) plus a manual sleep test.
@@ -162,7 +184,7 @@ test names are planned, not yet written.
 **FR-005 Clock or timezone change**
 - Priority: Must
 - Requirement: When the system clock is changed, the indicator shall show the
-  London day of the new instant within 1 s.
+  local day of the new instant within 1 s.
 - Acceptance: Given the clock is moved from Monday 12:00 to Wednesday 12:00,
   then within 1 s the indicator reads `Wednesday`; moved back, it reads
   `Monday`.
@@ -183,9 +205,13 @@ test names are planned, not yet written.
   which walks every date in the range and compares against a separate
   weekday formula (Sakamoto's method) written into the test, not against Go's
   own `time` package; plus `internal/domain/midnight_test.go::TestMidnightChain`,
-  which follows next London midnight from 2000-01-01 to 2399-12-31 and asserts
-  every step lands on the following civil date at 00:00 London time, through
-  every leap day and every GMT/BST change.
+  which follows next midnight in London from 2000-01-01 to 2399-12-31 and
+  asserts every step lands on the following civil date at 00:00, through
+  every leap day and every GMT/BST change; plus
+  `internal/domain/zones_test.go::TestEveryZoneMidnightChain`, which does the
+  same in every zone of the embedded tz data (598 on Go 1.26.3) from 2000 to
+  2100 and confirms the only dates skipped are Samoa's and Tokelau's
+  2011-12-30.
 
 ### 3.2 Functional requirements: the indicator
 
@@ -344,8 +370,10 @@ test names are planned, not yet written.
 **FR-034 About**
 - Priority: Must
 - Requirement: When `About WhatDay` is chosen, WhatDay shall show a dialog
-  stating the product name, the version read from `VERSION`, the author and
-  the licence (GPL-3.0).
+  stating the product name, `© 2026 Oliver Ernster` and the open-source works
+  WhatDay is built with, each with its licence: Go and golang.org/x/sys
+  (BSD 3-Clause, © 2009 The Go Authors) and the IANA Time Zone Database
+  (public domain). Nothing else. (Amendment 3.)
 - Verified by: `internal/application/about_test.go::TestAboutContent`
 
 ### 3.4 Functional requirements: colours
@@ -517,7 +545,6 @@ two-line opening beneath it) stays verbatim; everything added goes below it.
 | Auto-hide taskbar support | Rests on A-2; the work area does not exclude an auto-hidden taskbar. |
 | Taskbar at the top or sides | Rests on A-2. |
 | Localisation | Out of scope (1.3). Day names are English whatever the zone. |
-| Other zones | Phase 2 candidate: choose from a list of English-speaking regions, names staying English. Not yet specified; see Q-6. The domain already takes the zone as a parameter, so the change is a zone setting plus a menu entry. The per-zone midnight chain test must include a zone whose clocks change at midnight. |
 | Light mode | Amendment 2: the owner uses dark mode only. In light mode the indicator stays dark. |
 
 ## 4. Other requirements
@@ -528,7 +555,7 @@ GPL-3.0 for the application and the setup program. No third-party assets.
 
 ### 4.2 Internationalisation
 
-None by decision: English day names and Europe/London only.
+None by decision: English day names in every zone.
 
 ### 4.3 Risk
 
@@ -556,16 +583,16 @@ file and read back. Not project code.
 ### Appendix B: Open questions
 
 Q-1 to Q-4 were decided on 2026-09-19 and now live in FR-019, FR-040, FR-041
-and FR-073.
+and FR-073. Q-6 was decided the same day: follow the Windows zone
+(Amendment 4, FR-002).
 
 | ID | Question | Plan | Owner | Due |
 |---|---|---|---|---|
-| Q-6 | Phase 2 zones: should the menu offer a fixed list of English-speaking regions? The alternative is simply following the Windows timezone. If a list, which regions? | Decide before Phase 2 is specified. | Oliver | Start of Phase 2 |
 | Q-5 | What colour is the indicator's own dark Acrylic background? M-4 measured the taskbar rather than the indicator. Acrylic blurs what is behind it, so a white window behind the indicator lightens it. | Until measured, check shades against the taskbar mean `#1C222F` plus a lighter worst case. Confirm by sampling the running indicator over a white window once the application exists. | Claude | First run of the application |
 
 ### Appendix C: Build order
 
-1. Domain: day name, next London midnight, geometry (size, clamp, default,
+1. Domain: day name, next local midnight, geometry (size, clamp, default,
    lost monitor), drag threshold, palette with its contrast and distance
    tests.
 2. Application: refresh on midnight, resume and clock change; menu model;
@@ -579,5 +606,7 @@ and FR-073.
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 4 | 2026-09-19 | FR-002, FR-003 to FR-006, new FR-007 and FR-008, scope, glossary, Q-6 | The day follows the zone Windows is set to, re-read at every refresh, instead of Europe/London. Midnight is the first instant the local date moves on, found by bisection where clocks jump at 00:00. | Owner's decision: an English speaker may travel with the laptop. Measured: the naive midnight was wrong at 746 midnights across 598 zones from 2000 to 2100; Go's time.Local is read once per process, so it cannot follow a zone change. |
+| 3 | 2026-09-19 | FR-034 | About states the copyright and the open-source works used, with their licences; the version and WhatDay's own licence are no longer shown there. | Owner's decision: About "should simply" credit the open-source providers and the author. Licences read from each work's own LICENSE or README. |
 | 2 | 2026-09-19 | FR-015, FR-016, FR-040, NFR-COL-001, NFR-COL-002 | Light mode dropped: the indicator is always dark Acrylic; FR-016 retired; one shade per colour. | Owner's decision: dark mode only, "this is for me not the world". |
 | 1 | 2026-09-19 | FR-022 | "Lost" is judged by the monitor's whole rectangle, not its work area; a strip still on its monitor is clamped, not moved. | `TestPlaceClampsSavedPositionOverlappingTaskbar` failed against the baseline wording: a strip whose centre sat over the taskbar was sent to the default corner though its monitor was attached. |

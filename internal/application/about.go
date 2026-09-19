@@ -1,19 +1,57 @@
 package application
 
-// Product facts, each with this one home.
-const (
-	ProductName = "WhatDay"
-	Author      = "Oliver Ernster"
-	Licence     = "GPL-3.0"
+import (
+	"fmt"
+	"strings"
 )
 
-// About is what the About dialog states (FR-034).
-type About struct {
-	Name, Version, Author, Licence string
+// Product facts, each with this one home.
+const (
+	ProductName   = "WhatDay"
+	Author        = "Oliver Ernster"
+	CopyrightYear = 2026
+)
+
+// Credit names one open-source work WhatDay is built from.
+type Credit struct {
+	Work, Licence, Holder string
 }
 
-// NewAbout answers the About facts for version, which the composition root
-// reads from the build (VERSION, C-7).
-func NewAbout(version string) About {
-	return About{Name: ProductName, Version: version, Author: Author, Licence: Licence}
+// credits are the works compiled into WhatDay, each licence read from the
+// work's own LICENSE file (Go and golang.org/x/sys) or its README (the time
+// zone data Go embeds).
+var credits = [...]Credit{
+	{Work: "Go", Licence: "BSD 3-Clause", Holder: "© 2009 The Go Authors"},
+	{Work: "golang.org/x/sys", Licence: "BSD 3-Clause", Holder: "© 2009 The Go Authors"},
+	{Work: "IANA Time Zone Database", Licence: "public domain"},
+}
+
+// About is what the About dialog states (FR-034, Amendment 3): the author's
+// copyright and the open-source works used, nothing more.
+type About struct {
+	Title     string
+	Copyright string
+	Credits   []Credit
+}
+
+// NewAbout answers the About facts.
+func NewAbout() About {
+	return About{
+		Title:     AboutLabel,
+		Copyright: fmt.Sprintf("© %d %s", CopyrightYear, Author),
+		Credits:   append([]Credit(nil), credits[:]...),
+	}
+}
+
+// Text answers the dialog's body, one line per fact.
+func (a About) Text() string {
+	lines := []string{ProductName, a.Copyright, "", "Built with:"}
+	for _, c := range a.Credits {
+		line := c.Work + ", " + c.Licence
+		if c.Holder != "" {
+			line += ", " + c.Holder
+		}
+		lines = append(lines, line)
+	}
+	return strings.Join(lines, "\n")
 }

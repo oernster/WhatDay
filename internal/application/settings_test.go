@@ -1,7 +1,6 @@
 package application_test
 
 import (
-	"strings"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ func TestDefaults(t *testing.T) {
 	if got := r.view.lastColour(); got != domain.DefaultColourName {
 		t.Fatalf("colour: got %q, want %q", got, domain.DefaultColourName)
 	}
-	if len(r.log.lines) != 0 {
+	if got := r.log.about("settings"); len(got) != 0 {
 		t.Fatalf("absence is not a fault, yet logged %q", r.log.lines)
 	}
 }
@@ -40,7 +39,7 @@ func TestUnreadableSettingsGiveDefaultsAndLog(t *testing.T) {
 	if got := r.view.lastColour(); got != domain.DefaultColourName {
 		t.Fatalf("colour: got %q, want %q", got, domain.DefaultColourName)
 	}
-	if len(r.log.lines) != 1 || !strings.Contains(r.log.lines[0], errDisk.Error()) {
+	if got := r.log.about(errDisk.Error()); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming the error", r.log.lines)
 	}
 }
@@ -53,7 +52,7 @@ func TestUnknownSavedColourGivesDefaultAndLog(t *testing.T) {
 	if got := r.view.lastColour(); got != domain.DefaultColourName {
 		t.Fatalf("colour: got %q, want %q", got, domain.DefaultColourName)
 	}
-	if len(r.log.lines) != 1 || !strings.Contains(r.log.lines[0], "Magenta") {
+	if got := r.log.about("Magenta"); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming Magenta", r.log.lines)
 	}
 	menu := r.ind.Menu()

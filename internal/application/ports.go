@@ -14,6 +14,12 @@ type Clock interface {
 	Now() time.Time
 }
 
+// Zones answers the timezone Windows is set to now (FR-002, Amendment 4). On
+// failure it still answers a usable zone, the best it has, beside the error.
+type Zones interface {
+	Current() (*time.Location, error)
+}
+
 // View is the indicator as the use cases see it.
 type View interface {
 	// ShowDay paints the day name.

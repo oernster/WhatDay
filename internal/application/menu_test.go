@@ -34,8 +34,27 @@ func TestMenuModel(t *testing.T) {
 
 func TestAboutContent(t *testing.T) {
 	t.Parallel()
-	want := application.About{Name: "WhatDay", Version: "1.2.3", Author: "Oliver Ernster", Licence: "GPL-3.0"}
-	if got := application.NewAbout("1.2.3"); got != want {
-		t.Fatalf("got %+v, want %+v", got, want)
+	about := application.NewAbout()
+	if about.Title != "About WhatDay" {
+		t.Errorf("title: got %q", about.Title)
+	}
+	want := "WhatDay\n" +
+		"© 2026 Oliver Ernster\n" +
+		"\n" +
+		"Built with:\n" +
+		"Go, BSD 3-Clause, © 2009 The Go Authors\n" +
+		"golang.org/x/sys, BSD 3-Clause, © 2009 The Go Authors\n" +
+		"IANA Time Zone Database, public domain"
+	if got := about.Text(); got != want {
+		t.Errorf("text:\ngot  %q\nwant %q", got, want)
+	}
+}
+
+func TestAboutCreditsAreACopy(t *testing.T) {
+	t.Parallel()
+	first := application.NewAbout()
+	first.Credits[0].Work = "changed"
+	if application.NewAbout().Credits[0].Work != "Go" {
+		t.Fatal("changing a returned About changed the credits")
 	}
 }

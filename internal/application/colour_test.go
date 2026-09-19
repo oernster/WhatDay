@@ -1,7 +1,6 @@
 package application_test
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -29,7 +28,7 @@ func TestChooseUnknownColourIsIgnored(t *testing.T) {
 	if len(r.view.colours) != painted || store.saves != 0 {
 		t.Fatalf("an unknown colour changed something: %d paints, %d saves", len(r.view.colours)-painted, store.saves)
 	}
-	if len(r.log.lines) != 1 || !strings.Contains(r.log.lines[0], "Magenta") {
+	if got := r.log.about("Magenta"); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming Magenta", r.log.lines)
 	}
 }
@@ -46,7 +45,7 @@ func TestUnwritableKeepsSessionValue(t *testing.T) {
 	if !r.ind.Menu()[6].Checked {
 		t.Fatal("menu should still check Purple for this run")
 	}
-	if len(r.log.lines) != 1 || !strings.Contains(r.log.lines[0], errDisk.Error()) {
+	if got := r.log.about(errDisk.Error()); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming the error", r.log.lines)
 	}
 }

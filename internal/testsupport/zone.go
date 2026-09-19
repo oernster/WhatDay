@@ -6,16 +6,18 @@ import (
 	"testing"
 	"time"
 	_ "time/tzdata" // tests see the same zone data the binary embeds (C-4)
-
-	"github.com/oernster/WhatDay/internal/domain"
 )
 
-// London loads domain.ZoneName or fails the test.
+// HomeZone is the owner's zone, the worked example the tests use. WhatDay
+// itself follows whatever zone Windows is set to (Amendment 4).
+const HomeZone = "Europe/London"
+
+// London loads HomeZone or fails the test.
 func London(t *testing.T) *time.Location {
 	t.Helper()
-	zone, err := time.LoadLocation(domain.ZoneName)
+	zone, err := time.LoadLocation(HomeZone)
 	if err != nil {
-		t.Fatalf("load %s: %v", domain.ZoneName, err)
+		t.Fatalf("load %s: %v", HomeZone, err)
 	}
 	return zone
 }
