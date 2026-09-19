@@ -41,6 +41,9 @@ type State struct {
 	ThisVersion      string      `json:"thisVersion"`
 	InstallDir       string      `json:"installDir"`
 	StepLog          string      `json:"stepLog"`
+	// StartAtLogin is what the machine holds now, so the option opens on
+	// what is already true rather than on a default.
+	StartAtLogin bool `json:"startAtLogin"`
 }
 
 // Progress is emitted on the "progress" event while work runs.
@@ -55,7 +58,18 @@ func (a *App) DetectState() State {
 	installed, found := setup.InstalledVersion()
 	route := setup.Decide(a.uninstallAsked, found, installed, a.version)
 	setup.Step("setup %s started: route %s, installed %q", a.version, route, installed)
-	return State{Route: route, Installed: found, InstalledVersion: installed, ThisVersion: a.version, InstallDir: dir, StepLog: setup.StepLogPath()}
+	return State{Route: route, Installed: found, InstalledVersion: installed, ThisVersion: a.version, InstallDir: dir, StepLog: setup.StepLogPath(), StartAtLogin: setup.StartsAtLogin()}
+}
+
+// SetStartAtLogin applies the sign-in option at once from the manage screen,
+// where there is nothing to install for a go-ahead to wait on.
+func (a *App) SetStartAtLogin(enabled bool) error {
+	dir, err := setup.InstallDir()
+	if err != nil {
+		return a.logged(err)
+	}
+	setup.Step("start at sign-in set to %v", enabled)
+	return a.logged(setup.SetStartAtLogin(filepath.Join(dir, setup.ExeName), enabled))
 }
 
 // AppRunning reports whether WhatDay is running, asked before any file is touched.
@@ -80,8 +94,9 @@ const (
 )
 
 // Install installs, updates, goes back or repairs: every route writes the
-// same files and entries (FR-060, FR-070 to FR-072).
-func (a *App) Install() error {
+// same files and entries, then sets the sign-in entry as chosen (FR-060,
+// FR-070 to FR-072, Amendment 7).
+func (a *App) Install(startAtLogin bool) error {
 	if setup.AppRunning() {
 		return a.logged(setup.ErrAppRunning)
 	}
@@ -109,8 +124,8 @@ func (a *App) Install() error {
 	if err := setup.CreateShortcut(exe, dir); err != nil {
 		return a.logged(err)
 	}
-	a.progress(pctShortcut, "Starting "+setup.AppName+" when you sign in")
-	if err := setup.SetStartAtLogin(exe, true); err != nil {
+	a.progress(pctShortcut, "Setting whether "+setup.AppName+" starts when you sign in")
+	if err := setup.SetStartAtLogin(exe, startAtLogin); err != nil {
 		return a.logged(err)
 	}
 	a.progress(pctDone, "Done")

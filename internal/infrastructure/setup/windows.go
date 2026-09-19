@@ -128,8 +128,8 @@ func WriteRecord(r Record) error {
 		"DisplayName":     AppName,
 		"DisplayVersion":  r.Version,
 		"InstallLocation": r.InstallDir,
-		"UninstallString": fmt.Sprintf("%q -uninstall", r.SetupExe),
-		"ModifyPath":      fmt.Sprintf("%q", r.SetupExe),
+		"UninstallString": quoted(r.SetupExe) + " -uninstall",
+		"ModifyPath":      quoted(r.SetupExe),
 		"DisplayIcon":     r.IconPath,
 		"Publisher":       Publisher,
 	}
@@ -163,7 +163,7 @@ func InstalledVersion() (string, bool) {
 }
 
 // SetStartAtLogin adds or removes the Run entry that starts WhatDay when the
-// user signs in (FR-060).
+// user signs in (FR-060, Amendment 7).
 func SetStartAtLogin(exePath string, enabled bool) error {
 	key, _, err := registry.CreateKey(registry.CURRENT_USER, runKeyPath, registry.SET_VALUE)
 	if err != nil {
@@ -174,10 +174,27 @@ func SetStartAtLogin(exePath string, enabled bool) error {
 		_ = key.DeleteValue(AppName)
 		return nil
 	}
-	if err := key.SetStringValue(AppName, fmt.Sprintf("%q", exePath)); err != nil {
+	if err := key.SetStringValue(AppName, quoted(exePath)); err != nil {
 		return fmt.Errorf("writing the Run entry: %w", err)
 	}
 	return nil
+}
+
+// StartsAtLogin reports whether the Run entry is present and names a file that
+// exists. Presence alone is not enough: an entry left pointing at a file that
+// has gone starts nothing, so it reads as off here and turning the option on
+// rewrites it. Ported from ED Voyage Companion.
+func StartsAtLogin() bool { return startsAtLogin(readRunEntry, fileExists) }
+
+// readRunEntry answers WhatDay's value in the Run key.
+func readRunEntry() (string, error) {
+	key, err := registry.OpenKey(registry.CURRENT_USER, runKeyPath, registry.QUERY_VALUE)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = key.Close() }()
+	value, _, err := key.GetStringValue(AppName)
+	return value, err
 }
 
 // StartMenuDir answers the current user's Start Menu Programs folder.

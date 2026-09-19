@@ -28,7 +28,7 @@ In scope:
 - A notification-area (tray) icon whose menu is the only control surface.
 - A choice of colour for the day name, remembered across restarts.
 - The strip's position, chosen by dragging, remembered across restarts.
-- Start at login.
+- Start at login, as an option in the setup program (Amendment 7).
 - A setup program in the house style, ported from PigeonPost's `installer/`.
 
 Out of scope (decided; see also 3.5 Won't this time):
@@ -369,7 +369,8 @@ that verifies it.
 - Priority: Must
 - Requirement: When `Quit WhatDay` is chosen, WhatDay shall remove its tray
   icon, close the indicator and exit, releasing the single-instance lock. It
-  shall start again at the next login (FR-060). (Amendment 5.)
+  shall start again at the next login where that option is on (FR-060).
+  (Amendment 5.)
 - Verified by: manual; the log records `quit from the tray` and the process
   ends.
 
@@ -457,11 +458,20 @@ that verifies it.
 
 **FR-060 Start at login**
 - Priority: Must
-- Requirement: The setup program shall register WhatDay to start at login for
-  the installing user (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
-- Acceptance: After install and a reboot, the indicator is visible without the
-  user starting anything.
-- Verified by: manual reboot test.
+- Requirement: The setup program shall offer `Start WhatDay when I sign in to
+  Windows` on its install, update and repair screens. Where the option is on,
+  it shall register WhatDay to start at login for the installing user
+  (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`), the value being the
+  executable's path in plain double quotes; where it is off, it shall remove
+  that entry. On a fresh install the option opens on; otherwise it opens on
+  whether an entry naming an existing file is present. On the repair screen a
+  change applies at once. (Amendment 7.)
+- Acceptance: After install with the option on and a reboot, the indicator is
+  visible without the user starting anything. With it off, nothing starts.
+- Verified by: `setup_test.go::TestQuotedWritesThePathAsWindowsDoes`,
+  `TestRunTargetReadsTheEntryBack`,
+  `TestStartsAtLoginOnlyForAnEntryNamingARealFile`; the setup page driven
+  against a recording backend; plus a manual reboot test.
 
 **FR-061 Single instance**
 - Priority: Must
@@ -632,6 +642,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 7 | 2026-09-19 | FR-060, FR-035, scope | Starting at login becomes an option in the setup program, on by default for a fresh install, applied at once on the repair screen. The Run, uninstall and modify values are written as plain quoted paths. | Owner's decision: an option to start with Windows. Measured: the values had been written with Go's %q, which doubled every backslash in the registry. |
 | 6 | 2026-09-19 | FR-032, new FR-036, NFR-PRIV-001 | The tray menu gains `Support WhatDay (opens your browser)` after About, handing WhatDay's own PayPal page to the browser. | Owner's decision: a donation link in the tray, as the other apps carry one. |
 | 5 | 2026-09-19 | FR-032, new FR-035, scope, Won't list | The tray menu ends with a separator and `Quit WhatDay`. | Owner's decision after the first run: without it the only way to stop WhatDay was Task Manager. |
 | 4 | 2026-09-19 | FR-002, FR-003 to FR-006, new FR-007 and FR-008, scope, glossary, Q-6 | The day follows the zone Windows is set to, re-read at every refresh, instead of Europe/London. Midnight is the first instant the local date moves on, found by bisection where clocks jump at 00:00. | Owner's decision: an English speaker may travel with the laptop. Measured: the naive midnight was wrong at 746 midnights across 598 zones from 2000 to 2100; Go's time.Local is read once per process, so it cannot follow a zone change. |

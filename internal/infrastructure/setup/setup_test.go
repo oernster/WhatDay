@@ -152,6 +152,56 @@ func TestStepAppendsToTheStepLog(t *testing.T) {
 	}
 }
 
+func TestQuotedWritesThePathAsWindowsDoes(t *testing.T) {
+	path := filepath.Join(`C:\Users\Someone\AppData\Local`, installSubdir, AppName, ExeName)
+	got := quoted(path)
+	if strings.Contains(got, `\\`) {
+		t.Fatalf("%s: a registry path needs single separators", got)
+	}
+	if got != `"`+path+`"` {
+		t.Fatalf("got %s, want the path in plain quotes", got)
+	}
+}
+
+func TestRunTargetReadsTheEntryBack(t *testing.T) {
+	path := filepath.Join(`C:\Users\Some One\AppData\Local`, installSubdir, AppName, ExeName)
+	for _, stored := range []string{quoted(path), quoted(path) + " -flag", "  " + quoted(path) + "  ", path} {
+		if got := runTarget(stored); got != path {
+			t.Errorf("runTarget(%q) = %q, want %q", stored, got, path)
+		}
+	}
+	// A value with an opening quote and no closing one is taken whole, less
+	// the stray quote, rather than cut short.
+	if got := runTarget(`"` + path); got != path {
+		t.Errorf("an unclosed quote read back as %q", got)
+	}
+}
+
+func TestStartsAtLoginOnlyForAnEntryNamingARealFile(t *testing.T) {
+	real := filepath.Join(t.TempDir(), ExeName)
+	if err := os.WriteFile(real, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	gone := filepath.Join(t.TempDir(), ExeName)
+	entry := func(value string, err error) func() (string, error) {
+		return func() (string, error) { return value, err }
+	}
+	cases := []struct {
+		name string
+		read func() (string, error)
+		want bool
+	}{
+		{"an entry naming the installed file", entry(quoted(real), nil), true},
+		{"an entry naming a file that has gone", entry(quoted(gone), nil), false},
+		{"no entry", entry("", errors.New("not found")), false},
+	}
+	for _, c := range cases {
+		if got := startsAtLogin(c.read, fileExists); got != c.want {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
 // The process tests never name WhatDay.exe: the owner's own copy is usually
 // running. The suite must neither end it nor measure differently for it.
 

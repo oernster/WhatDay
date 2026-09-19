@@ -49,7 +49,7 @@ the moment cover is lost; it is raised when cover rises.
 | `infrastructure/settings` | 100 | |
 | `infrastructure/zone` | 92 | Three failures cannot be caused on demand: Windows refusing the zone query, `icu.dll` missing, ICU reporting an error. |
 | `infrastructure/runlog` | 74 | Its crash paths run in child processes the tests start on purpose. The tests prove them by reading the child's log; coverage cannot see into another process. Two more failures cannot be caused on demand. |
-| `infrastructure/setup` | 54 | The route, the extraction, the step log and the process lookup are tested. The registry, shortcut and process-ending work change the real machine, so an install on the reference machine is their test. |
+| `infrastructure/setup` | 54 | The route, the extraction, the step log, the process lookup and the sign-in decision are tested. The registry, shortcut and process-ending work change the real machine, so an install on the reference machine is their test. |
 | `internal/ui` | 31 | The menu mapping, the drawing, the support entry, the icon and the monitor reading are tested. The message loop and window handling need a desktop and a person at it. |
 
 ## What the tests prove
@@ -109,7 +109,8 @@ guard.
 - **The zone**: fakes for every failure, plus the real Windows zone and the
   real ICU on the machine running the tests.
 - **Setup**: every route decision, the extraction fence against a crafted
-  archive, the step log and the process lookup.
+  archive, the step log, the process lookup and the sign-in entry: written as
+  a plain quoted path, read back, in force only where it names a real file.
 - **The support entry**: the address asserted literally and as `https`; the
   entry asks for that one address; a refusal is logged and shown; anything but
   `https` is refused before the desktop sees it.
@@ -152,6 +153,6 @@ beside each requirement.
 | Explorer restart (FR-024) | Restart Windows Explorer from Task Manager; the tray icon returns. |
 | Quit (FR-035) | The log says `quit from the tray` and the process ends. |
 | Support (FR-036) | The PayPal page opens in the browser. |
-| Start at sign-in (FR-060) | Install, reboot, sign in. |
+| Start at sign-in (FR-060) | Install with the option on, reboot, sign in: the strip appears. Untick it from setup's repair screen, reboot: nothing starts. |
 | Setup (FR-070 to FR-074) | Install, update, go back, repair and uninstall, each once, with WhatDay running; the registry and folders inspected afterwards. |
 | Idle CPU, memory, startup time (NFR-PERF-001 to 003) | `Get-Process` over ten minutes and 24 hours; the log's start and shown lines. |

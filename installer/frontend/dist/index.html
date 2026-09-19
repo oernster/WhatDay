@@ -137,6 +137,8 @@
             <h1>Install WhatDay</h1>
             <p class="lead" id="install-lead"></p>
             <div class="infobox">Install location<br/><span class="path" id="install-path"></span></div>
+            <label class="option"><input type="checkbox" id="boot-install"/><span class="check"></span>
+                <span>Start WhatDay when I sign in to Windows</span></label>
             <label class="option"><input type="checkbox" id="launch-install"/><span class="check"></span>
                 <span>Start WhatDay when setup finishes</span></label>
         </section>
@@ -145,6 +147,8 @@
             <h1 id="change-title"></h1>
             <p class="lead" id="change-lead"></p>
             <div class="version-flow"><span class="old" id="change-old"></span><span class="arrow">&rarr;</span><span class="new" id="change-new"></span></div>
+            <label class="option"><input type="checkbox" id="boot-change"/><span class="check"></span>
+                <span>Start WhatDay when I sign in to Windows</span></label>
             <label class="option"><input type="checkbox" id="launch-change"/><span class="check"></span>
                 <span>Start WhatDay when setup finishes</span></label>
         </section>
@@ -152,6 +156,8 @@
         <section class="screen" id="screen-manage">
             <h1>WhatDay is installed</h1>
             <p class="lead" id="manage-lead"></p>
+            <label class="option"><input type="checkbox" id="boot-manage"/><span class="check"></span>
+                <span>Start WhatDay when I sign in to Windows</span></label>
             <label class="option"><input type="checkbox" id="launch-manage"/><span class="check"></span>
                 <span>Start WhatDay when setup finishes</span></label>
         </section>
@@ -253,20 +259,31 @@
         ])
     }
 
-    const install = (title, doneTitle, doneLine, box) => withAppClosed(() =>
-        run(() => backend().Install(), title, doneTitle, doneLine, $(box).checked))
+    // The sign-in box is read when the go-ahead is pressed, so the choice on
+    // screen is the choice written.
+    const install = (title, doneTitle, doneLine, box, bootBox) => withAppClosed(() =>
+        run(() => backend().Install($(bootBox).checked), title, doneTitle, doneLine, $(box).checked))
+
+    // A fresh install opens with the box ticked, since starting at sign-in is
+    // the point of WhatDay; otherwise it opens on what the machine holds.
+    const bootDefault = () => state.installed ? state.startAtLogin : true
+
+    const signInLine = (bootBox) => $(bootBox).checked
+        ? 'It starts by itself when you sign in.'
+        : 'Start it from there whenever you want it.'
 
     const uninstallAction = {label: 'Uninstall', kind: 'danger', onClick: () => showUninstall()}
 
     function showInstall() {
-        $('install-lead').textContent = 'Version ' + state.thisVersion + ', for your account only: no administrator rights. WhatDay starts when you sign in.'
+        $('install-lead').textContent = 'Version ' + state.thisVersion + ', for your account only: no administrator rights.'
         $('install-path').textContent = state.installDir
+        $('boot-install').checked = bootDefault()
         $('launch-install').checked = true
         showScreen('install')
         setFooter([
             {label: 'Cancel', onClick: () => backend().Quit()},
             {label: 'Install', kind: 'primary', onClick: () => install('Installing WhatDay', 'WhatDay installed',
-                'Start it from the Start Menu. It starts by itself when you sign in.', 'launch-install')},
+                'It is in the Start Menu. ' + signInLine('boot-install'), 'launch-install', 'boot-install')},
         ])
     }
 
@@ -278,6 +295,7 @@
             : 'The installed version is newer than this one. Going back replaces it; your colour and position are kept.'
         $('change-old').textContent = 'v' + state.installedVersion
         $('change-new').textContent = 'v' + state.thisVersion
+        $('boot-change').checked = bootDefault()
         $('launch-change').checked = true
         showScreen('change')
         const label = update ? 'Update' : 'Go back'
@@ -285,19 +303,27 @@
             uninstallAction,
             {label: 'Cancel', onClick: () => backend().Quit()},
             {label: label, kind: 'primary', onClick: () => install(update ? 'Updating WhatDay' : 'Going back',
-                update ? 'WhatDay updated' : 'WhatDay replaced', 'You are now on v' + state.thisVersion + '.', 'launch-change')},
+                update ? 'WhatDay updated' : 'WhatDay replaced', 'You are now on v' + state.thisVersion + '.', 'launch-change', 'boot-change')},
         ])
     }
 
     function showManage() {
         $('manage-lead').textContent = 'Version ' + state.installedVersion + ' is installed, the same as this setup. Repair puts its files and entries back; nothing else changes.'
+        // Nothing is installed from this screen, so the sign-in box applies
+        // the moment it changes; a refusal puts the box back and says why.
+        const boot = $('boot-manage')
+        boot.checked = bootDefault()
+        boot.onchange = () => backend().SetStartAtLogin(boot.checked).catch((e) => {
+            boot.checked = !boot.checked
+            failed(e)
+        })
         $('launch-manage').checked = true
         showScreen('manage')
         setFooter([
             uninstallAction,
             {label: 'Close', onClick: () => backend().Quit()},
             {label: 'Repair', kind: 'primary', onClick: () => install('Repairing WhatDay', 'Repair complete',
-                'WhatDay has been put back in place.', 'launch-manage')},
+                'WhatDay has been put back in place.', 'launch-manage', 'boot-manage')},
         ])
     }
 

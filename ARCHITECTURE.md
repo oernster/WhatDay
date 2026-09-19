@@ -225,6 +225,11 @@ step. It is a facade; the install policy lives in
   install folder before any is written.
 - **A step log** in `%TEMP%\WhatDaySetup.log`, flushed after every step, since
   the worst setup failures never raise.
+- **Starting at sign-in is an option** that opens on what the machine holds:
+  on for a fresh install, otherwise on only where the Run entry names a file
+  that exists. On the repair screen it applies the moment it changes, since
+  nothing there waits for a go-ahead. Registry values are written as plain
+  quoted paths; Go's `%q` doubled every backslash.
 - Uninstall removes the shortcut, the sign-in entry, the Apps list entry,
   WhatDay's settings and log folders, then the install folder by a hidden
   shell that waits for setup to exit and release its own executable.

@@ -48,8 +48,9 @@ Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
   does, then comes back.
 - **Comes in six colours**, chosen from the tray menu: Red (the default),
   Amber, Green, Blue, Purple and Neutral (white).
-- **Starts when you sign in.** `Quit WhatDay` in the tray menu stops it until
-  the next sign-in or until it is started from the Start Menu.
+- **Starts when you sign in**, unless you untick that option in setup.
+  `Quit WhatDay` in the tray menu stops it until the next sign-in or until it
+  is started from the Start Menu.
 
 The tray menu holds everything: `About WhatDay`, `Support WhatDay (opens your
 browser)`, the six colours and `Quit WhatDay`. Clicking the strip itself does
@@ -75,7 +76,10 @@ gets its translucent Acrylic backdrop (22H2 and later).
 2. Run it and choose Install.
 
 Setup puts WhatDay in `%LOCALAPPDATA%\Programs\WhatDay`, adds a Start Menu
-shortcut, registers it to start at sign-in and lists it under Settings > Apps.
+shortcut and lists it under Settings > Apps. `Start WhatDay when I sign in to
+Windows` is ticked to begin with; untick it to start WhatDay only when you
+choose. Running setup again shows the option as it stands and changes it on
+the spot.
 Running setup again offers Update, Go back or Repair, depending on the version
 already installed, with Uninstall beside each. Modify in the Apps list opens
 the same program.

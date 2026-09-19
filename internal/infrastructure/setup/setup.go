@@ -121,6 +121,42 @@ func extractEntry(file *zip.File, dest string) error {
 	return nil
 }
 
+// quoted wraps a path in plain double quotes, which is how every entry in the
+// Run and Uninstall keys is written. Go's %q is not this: it escapes each
+// backslash, so the registry received every separator doubled (measured on the
+// reference machine). Windows' file calls happen to resolve a doubled path;
+// it is still not the form those keys hold. Ported from ED Voyage Companion.
+func quoted(path string) string { return `"` + path + `"` }
+
+// runTarget reads a sign-in entry back as the path it starts, so the entry can
+// be checked against the file it names. The quoted form is read first, since
+// that is what is written: everything up to the closing quote is the path. An
+// unquoted value is taken whole rather than split on its first space, because
+// a path with a space in it is ordinary. Ported from ED Voyage Companion.
+func runTarget(value string) string {
+	trimmed := strings.TrimSpace(value)
+	if strings.HasPrefix(trimmed, `"`) {
+		if end := strings.Index(trimmed[1:], `"`); end >= 0 {
+			return trimmed[1 : end+1]
+		}
+	}
+	return strings.Trim(trimmed, `"`)
+}
+
+// startsAtLogin decides whether a sign-in entry is in force: read answers the
+// stored value, exists whether a file is there. No entry, an unreadable one or
+// one naming a missing file all answer false.
+func startsAtLogin(read func() (string, error), exists func(path string) bool) bool {
+	value, err := read()
+	return err == nil && exists(runTarget(value))
+}
+
+// fileExists reports whether path names something that can be found.
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 // DirSizeKB answers the size of a folder tree in kilobytes, for the Apps
 // list's size column.
 func DirSizeKB(dir string) (uint32, error) {
