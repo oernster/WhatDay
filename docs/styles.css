@@ -292,23 +292,6 @@ h2 {
 
 .prose strong { color: var(--text); }
 
-.screenshot {
-    margin: 28px 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-}
-
-.screenshot img {
-    width: min(100%, 498px);
-    image-rendering: auto;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-}
-
-.screenshot figcaption { color: var(--faint); font-size: 0.85rem; }
-
 /* The over-engineering ledger */
 
 .stats {
