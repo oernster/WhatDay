@@ -70,4 +70,36 @@ try {
     if (Test-Path $profilePath) { Remove-Item $profilePath -Force }
 }
 
+# Infrastructure, each package held at the number it actually reaches. These
+# floors are measurements, never aspirations; raise one when its cover rises.
+#
+# runlog sits below 100 because its crash paths run inside child processes the
+# tests start on purpose. The tests prove them by reading the child's log;
+# coverage cannot see into another process. The rest of the shortfall is two
+# failures that cannot be caused on demand: a write failing straight after a
+# successful open; Go refusing a crash-output file.
+$measured = [ordered]@{
+    './internal/infrastructure/clock'    = 100
+    './internal/infrastructure/instance' = 100
+    './internal/infrastructure/runlog'   = 74
+    './internal/infrastructure/settings' = 100
+}
+
+Write-Host 'Measuring infrastructure...'
+foreach ($package in $measured.Keys) {
+    $floor = $measured[$package]
+    $reported = go test -count=1 -cover $package
+    if ($LASTEXITCODE -ne 0) { throw "$package failed with exit code $LASTEXITCODE" }
+
+    $line = $reported | Where-Object { $_ -match 'coverage: ' } | Select-Object -First 1
+    if ($line -notmatch 'coverage: ([0-9]+(?:\.[0-9]+)?)%') {
+        throw "could not read a coverage figure for ${package}: $line"
+    }
+    $reached = [double]$Matches[1]
+    if ($reached -lt $floor) {
+        throw "$package is at $reached%, below its floor of $floor%"
+    }
+    Write-Host ("  {0,-38} {1,5}%  floor {2}%" -f $package, $reached, $floor)
+}
+
 Write-Host 'All green.'
