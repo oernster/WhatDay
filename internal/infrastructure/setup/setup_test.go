@@ -152,12 +152,27 @@ func TestStepAppendsToTheStepLog(t *testing.T) {
 	}
 }
 
-func TestAppRunningFindsNoWhatDayInTests(t *testing.T) {
-	// No WhatDay.exe runs while the suite does, unless the owner has one open.
-	if AppRunning() {
-		t.Skip("WhatDay is running on this machine")
+// The process tests never name WhatDay.exe: the owner's own copy is usually
+// running. The suite must neither end it nor measure differently for it.
+
+func TestProcessIDsFindsThisTest(t *testing.T) {
+	self, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if err := CloseRunningApp(); err != nil {
+	if got := processIDs(strings.ToUpper(filepath.Base(self))); len(got) == 0 {
+		t.Fatalf("the running test binary %s was not found", filepath.Base(self))
+	}
+}
+
+func TestCloseAllWithNothingRunningAnswersAtOnce(t *testing.T) {
+	if err := closeAll("WhatDay-no-such-program.exe"); err != nil {
 		t.Fatalf("closing nothing: %v", err)
+	}
+}
+
+func TestAppRunningAsksAboutWhatDay(t *testing.T) {
+	if got, want := AppRunning(), len(processIDs(ExeName)) > 0; got != want {
+		t.Fatalf("AppRunning %v, processIDs says %v", got, want)
 	}
 }

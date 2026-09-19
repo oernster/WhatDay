@@ -25,7 +25,7 @@ func NewIndicator(clock Clock, zones Zones, view View, scheduler Scheduler, stor
 }
 
 // Start loads the settings, paints the colour and the day, then arms the
-// wake-up for the next London midnight (FR-001, FR-041, FR-052, FR-053).
+// wake-up for the next local midnight (FR-001, FR-041, FR-052, FR-053).
 func (ind *Indicator) Start() {
 	ind.settings = ind.loadSettings()
 	colour, _ := domain.ColourNamed(ind.settings.ColourName)

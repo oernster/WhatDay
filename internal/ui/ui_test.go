@@ -12,6 +12,7 @@ func TestMenuEntriesFollowTheModel(t *testing.T) {
 	t.Parallel()
 	items := []application.MenuItem{
 		{Kind: application.MenuAbout, Label: "About WhatDay"},
+		{Kind: application.MenuDonate, Label: "Support WhatDay (opens your browser)"},
 		{Kind: application.MenuSeparator},
 		{Kind: application.MenuColour, Label: "Red"},
 		{Kind: application.MenuColour, Label: "Amber", Checked: true},
@@ -20,6 +21,7 @@ func TestMenuEntriesFollowTheModel(t *testing.T) {
 	}
 	want := []menuEntry{
 		{id: cmdAbout, flags: mfString, label: "About WhatDay"},
+		{id: cmdDonate, flags: mfString, label: "Support WhatDay (opens your browser)"},
 		{flags: mfSeparator},
 		{id: cmdColourBase, flags: mfString, label: "Red"},
 		{id: cmdColourBase + 1, flags: mfString | mfChecked, label: "Amber"},

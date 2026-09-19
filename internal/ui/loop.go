@@ -15,7 +15,9 @@ const className = application.ProductName + "Indicator"
 
 // NewWindow prepares the indicator; Run opens it.
 func NewWindow(log application.Log, now func() time.Time) *Window {
-	return &Window{log: log, now: now}
+	w := &Window{log: log, now: now, open: openExternal}
+	w.alert = w.warn
+	return w
 }
 
 // Run opens the indicator and the tray icon, starts controller and pumps

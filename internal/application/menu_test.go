@@ -1,6 +1,7 @@
 package application_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/oernster/WhatDay/internal/application"
@@ -13,6 +14,7 @@ func TestMenuModel(t *testing.T) {
 	r.ind.ChooseColour("Amber")
 	want := []application.MenuItem{
 		{Kind: application.MenuAbout, Label: "About WhatDay"},
+		{Kind: application.MenuDonate, Label: "Support WhatDay (opens your browser)"},
 		{Kind: application.MenuSeparator},
 		{Kind: application.MenuColour, Label: "Red"},
 		{Kind: application.MenuColour, Label: "Amber", Checked: true},
@@ -49,6 +51,19 @@ func TestAboutContent(t *testing.T) {
 		"IANA Time Zone Database, public domain"
 	if got := about.Text(); got != want {
 		t.Errorf("text:\ngot  %q\nwant %q", got, want)
+	}
+}
+
+// The address is asserted literally, so a slip in it fails here rather than
+// sending a supporter to a page that is not the owner's (FR-036).
+func TestDonateURLIsWhatDaysOwn(t *testing.T) {
+	t.Parallel()
+	const want = "https://www.paypal.com/ncp/payment/7LC63AH9F2UYU"
+	if application.DonateURL != want {
+		t.Fatalf("got %q, want %q", application.DonateURL, want)
+	}
+	if !strings.HasPrefix(application.DonateURL, "https://") {
+		t.Fatalf("%q is not https", application.DonateURL)
 	}
 }
 

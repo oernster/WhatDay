@@ -78,6 +78,17 @@ func (l *fakeLog) about(word string) []string {
 	return found
 }
 
+// checkedColour answers the colour the menu has checked; empty when none is.
+// It finds the entry by kind, so a new menu entry cannot shift what it reads.
+func checkedColour(menu []application.MenuItem) string {
+	for _, item := range menu {
+		if item.Kind == application.MenuColour && item.Checked {
+			return item.Label
+		}
+	}
+	return ""
+}
+
 // fakeZones answers zone and err, as a Zones port does: a usable zone always,
 // an error beside it when the real zone could not be read.
 type fakeZones struct {

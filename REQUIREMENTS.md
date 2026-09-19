@@ -114,8 +114,8 @@ that build.
 
 ## 3. Requirements
 
-Priorities use MoSCoW. Every requirement names the test that will verify it;
-test names are planned, not yet written.
+Priorities use MoSCoW. Every requirement names the test or the manual check
+that verifies it.
 
 ### 3.1 Functional requirements: the day
 
@@ -220,7 +220,8 @@ test names are planned, not yet written.
   or window menu; its whole visible area is the day name on its background.
 - Acceptance: Inspection of the running indicator; its window style is
   `WS_POPUP` with no `WS_CAPTION`, `WS_THICKFRAME` or `WS_SYSMENU`.
-- Verified by: `internal/ui/window_test.go::TestIndicatorStyleHasNoFurniture`
+- Verified by: inspection. `internal/ui/loop.go` creates the window with
+  `WS_POPUP` alone; no automated test covers the style.
 
 **FR-011 Rounded corners**
 - Priority: Should
@@ -240,8 +241,8 @@ test names are planned, not yet written.
 - Priority: Must
 - Requirement: The indicator shall not appear on the taskbar or in the
   Alt+Tab switcher.
-- Verified by: `TestIndicatorStyleHasNoFurniture` (tool-window style) plus
-  inspection.
+- Verified by: inspection. The window carries `WS_EX_TOOLWINDOW`
+  (`internal/ui/loop.go`); no automated test covers the style.
 
 **FR-014 Size**
 - Priority: Must
@@ -274,7 +275,7 @@ test names are planned, not yet written.
 - Requirement: When the user presses the left mouse button on the indicator
   and moves beyond the drag threshold, the indicator shall follow the pointer
   until the button is released.
-- Verified by: `internal/domain/drag_test.go::TestThresholdSeparatesClickFromDrag`
+- Verified by: `internal/domain/geometry_test.go::TestThresholdSeparatesClickFromDrag`
   plus manual.
 
 **FR-018 Never on the taskbar**
@@ -356,9 +357,10 @@ test names are planned, not yet written.
 
 **FR-032 Menu contents**
 - Priority: Must
-- Requirement: The menu shall contain exactly: `About WhatDay`, a separator,
-  one item per palette colour with the current colour checked, a separator,
-  then `Quit WhatDay` (Amendment 5).
+- Requirement: The menu shall contain exactly: `About WhatDay`,
+  `Support WhatDay (opens your browser)`, a separator, one item per palette
+  colour with the current colour checked, a separator, then `Quit WhatDay`
+  (Amendments 5 and 6).
 - Verified by: `internal/application/menu_test.go::TestMenuModel`,
   `internal/ui/ui_test.go::TestMenuEntriesFollowTheModel`
 
@@ -383,7 +385,18 @@ test names are planned, not yet written.
   WhatDay is built with, each with its licence: Go and golang.org/x/sys
   (BSD 3-Clause, © 2009 The Go Authors) and the IANA Time Zone Database
   (public domain). Nothing else. (Amendment 3.)
-- Verified by: `internal/application/about_test.go::TestAboutContent`
+- Verified by: `internal/application/menu_test.go::TestAboutContent`
+
+**FR-036 Support** (Amendment 6)
+- Priority: Should
+- Requirement: When `Support WhatDay (opens your browser)` is chosen, WhatDay
+  shall hand `https://www.paypal.com/ncp/payment/7LC63AH9F2UYU` to the
+  desktop to open in the default browser. WhatDay opens no connection itself;
+  only an `https` address is handed over. If the desktop declines, WhatDay
+  shall say so in a message box and in the log.
+- Verified by: `internal/application/menu_test.go::TestDonateURLIsWhatDaysOwn`,
+  `internal/ui/browser_test.go::TestDonateAsksForWhatDaysAddressOnly`,
+  `TestDonateRefusedSaysSo`, `TestOpenExternalRefusesAnythingButHTTPS`
 
 ### 3.4 Functional requirements: colours
 
@@ -438,7 +451,8 @@ test names are planned, not yet written.
 - Requirement: If the settings file cannot be written, then WhatDay shall keep
   the new choice for the running session, record the reason in the log and
   carry on.
-- Verified by: `store_test.go::TestUnwritableKeepsSessionValue`
+- Verified by: `internal/application/colour_test.go::TestUnwritableKeepsSessionValue`,
+  `store_test.go::TestUnwritableFolderIsAnError`
 
 **FR-060 Start at login**
 - Priority: Must
@@ -466,7 +480,8 @@ test names are planned, not yet written.
 - Priority: Must
 - Requirement: If a panic occurs on the message loop, then WhatDay shall
   record it in the log with its stack.
-- Verified by: `runlog_test.go::TestPanicIsRecorded`
+- Verified by: `runlog_test.go::TestAPanicOnAnotherGoroutineIsInTheLog`,
+  `TestWhereTheRunHasNoErrorOutputEverythingIsInTheLog`
 
 ### 3.6 Functional requirements: setup program
 
@@ -525,8 +540,10 @@ Appendix A.
 look alike. Verified by the same test.
 
 **NFR-PRIV-001 No network**: WhatDay and its setup program shall make no
-network connections. Verified by a structural test forbidding `net` and
-`net/http` imports outside the setup program's Wails runtime.
+network connections. The Support entry (FR-036) hands an address to the
+browser, which is the program that connects. Verified by
+`tests/structural/boundary_test.go::TestNoNetworkImports`, which forbids `net`
+and every `net/` package in the repository's own code.
 
 **NFR-MAINT-001 Coverage**: `internal/domain` and `internal/application`
 shall be held at 100% statement coverage by `test.ps1`, which `build.ps1` runs
@@ -614,6 +631,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 6 | 2026-09-19 | FR-032, new FR-036, NFR-PRIV-001 | The tray menu gains `Support WhatDay (opens your browser)` after About, handing WhatDay's own PayPal page to the browser. | Owner's decision: a donation link in the tray, as the other apps carry one. |
 | 5 | 2026-09-19 | FR-032, new FR-035, scope, Won't list | The tray menu ends with a separator and `Quit WhatDay`. | Owner's decision after the first run: without it the only way to stop WhatDay was Task Manager. |
 | 4 | 2026-09-19 | FR-002, FR-003 to FR-006, new FR-007 and FR-008, scope, glossary, Q-6 | The day follows the zone Windows is set to, re-read at every refresh, instead of Europe/London. Midnight is the first instant the local date moves on, found by bisection where clocks jump at 00:00. | Owner's decision: an English speaker may travel with the laptop. Measured: the naive midnight was wrong at 746 midnights across 598 zones from 2000 to 2100; Go's time.Local is read once per process, so it cannot follow a zone change. |
 | 3 | 2026-09-19 | FR-034 | About states the copyright and the open-source works used, with their licences; the version and WhatDay's own licence are no longer shown there. | Owner's decision: About "should simply" credit the open-source providers and the author. Licences read from each work's own LICENSE or README. |

@@ -96,7 +96,7 @@ $measured = [ordered]@{
     './internal/infrastructure/settings' = 100
     './internal/infrastructure/setup'    = 54
     './internal/infrastructure/zone'     = 92
-    './internal/ui'                      = 29
+    './internal/ui'                      = 31
 }
 
 Write-Host 'Measuring infrastructure...'

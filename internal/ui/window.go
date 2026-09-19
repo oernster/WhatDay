@@ -33,6 +33,11 @@ type Window struct {
 	controller Controller
 	log        application.Log
 	now        func() time.Time
+	// open hands an address to the browser and alert says something on
+	// screen; both are fields so a test can prove what is asked for without
+	// opening a browser or a dialog.
+	open  func(address string) error
+	alert func(text string)
 
 	day    string
 	colour domain.Colour

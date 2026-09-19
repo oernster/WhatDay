@@ -55,9 +55,8 @@ func TestUnknownSavedColourGivesDefaultAndLog(t *testing.T) {
 	if got := r.log.about("Magenta"); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming Magenta", r.log.lines)
 	}
-	menu := r.ind.Menu()
-	if !menu[2].Checked || menu[2].Label != domain.DefaultColourName {
-		t.Fatalf("menu should check the default colour, got %+v", menu[2])
+	if got := checkedColour(r.ind.Menu()); got != domain.DefaultColourName {
+		t.Fatalf("menu should check the default colour, got %q", got)
 	}
 }
 

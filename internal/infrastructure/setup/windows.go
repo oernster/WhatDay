@@ -74,15 +74,20 @@ func processIDs(exeName string) []uint32 {
 
 // CloseRunningApp ends every WhatDay.exe by image name, never by process
 // tree, then waits for the executable to be released.
-func CloseRunningApp() error {
-	for _, pid := range processIDs(ExeName) {
+func CloseRunningApp() error { return closeAll(ExeName) }
+
+// closeAll ends every process running exeName, then waits up to
+// terminateWait for none to be left. It takes the name so the suite can
+// exercise it without touching a WhatDay the owner has open.
+func closeAll(exeName string) error {
+	for _, pid := range processIDs(exeName) {
 		if handle, err := windows.OpenProcess(windows.PROCESS_TERMINATE, false, pid); err == nil {
 			_ = windows.TerminateProcess(handle, forcedExitCode)
 			_ = windows.CloseHandle(handle)
 		}
 	}
 	deadline := time.Now().Add(terminateWait)
-	for AppRunning() {
+	for len(processIDs(exeName)) > 0 {
 		if time.Now().After(deadline) {
 			return ErrAppStillRunning
 		}

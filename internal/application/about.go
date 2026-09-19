@@ -10,6 +10,10 @@ const (
 	ProductName   = "WhatDay"
 	Author        = "Oliver Ernster"
 	CopyrightYear = 2026
+	// DonateURL is where the Support entry sends a browser (FR-036). It is the
+	// only address WhatDay knows. It is handed to the desktop, which opens the
+	// page, so WhatDay itself never opens a connection (NFR-PRIV-001).
+	DonateURL = "https://www.paypal.com/ncp/payment/7LC63AH9F2UYU"
 )
 
 // Credit names one open-source work WhatDay is built from.

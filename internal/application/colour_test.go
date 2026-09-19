@@ -42,8 +42,8 @@ func TestUnwritableKeepsSessionValue(t *testing.T) {
 	if got := r.view.lastColour(); got != "Purple" {
 		t.Fatalf("painted %q, want Purple despite the failed save", got)
 	}
-	if !r.ind.Menu()[6].Checked {
-		t.Fatal("menu should still check Purple for this run")
+	if got := checkedColour(r.ind.Menu()); got != "Purple" {
+		t.Fatalf("menu should still check Purple for this run, got %q", got)
 	}
 	if got := r.log.about(errDisk.Error()); len(got) != 1 {
 		t.Fatalf("log: got %q, want one line naming the error", r.log.lines)

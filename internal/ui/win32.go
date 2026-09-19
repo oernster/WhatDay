@@ -66,6 +66,7 @@ var (
 	pShellNotifyIcon  = shell.NewProc("Shell_NotifyIconW")
 	pSHAppBarMessage  = shell.NewProc("SHAppBarMessage")
 	pExtractIconEx    = shell.NewProc("ExtractIconExW")
+	pShellExecute     = shell.NewProc("ShellExecuteW")
 	pGetDpiForMonitor = shcore.NewProc("GetDpiForMonitor")
 	pDwmSetAttr       = dwm.NewProc("DwmSetWindowAttribute")
 	pDwmExtendFrame   = dwm.NewProc("DwmExtendFrameIntoClientArea")
@@ -135,6 +136,11 @@ const (
 	abmRemove        = 1
 	abnFullscreenApp = 2
 	mbIconInfo       = 0x40
+	mbIconWarning    = 0x30
+	swShowNormal     = 1
+	// shellExecuteFailed is the highest answer ShellExecute gives on failure;
+	// anything above it means the desktop took the address.
+	shellExecuteFailed = 32
 )
 
 // Drawing and DWM.
