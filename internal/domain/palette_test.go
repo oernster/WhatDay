@@ -25,7 +25,7 @@ var backgrounds = []struct {
 
 func TestPaletteNamesAndOrder(t *testing.T) {
 	t.Parallel()
-	want := []string{"Red", "Amber", "Green", "Blue", "Purple", "Neutral"}
+	want := []string{"Red", "Amber", "Yellow", "Green", "Blue", "Purple", "Neutral"}
 	got := domain.Palette()
 	if len(got) != len(want) {
 		t.Fatalf("got %d colours, want %d", len(got), len(want))

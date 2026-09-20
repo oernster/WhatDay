@@ -46,14 +46,14 @@ Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
   right of the main monitor.
 - **Gets out of the way** when a fullscreen application opens, as the taskbar
   does, then comes back.
-- **Comes in six colours**, chosen from the tray menu: Red (the default),
-  Amber, Green, Blue, Purple and Neutral (white).
+- **Comes in seven colours**, chosen from the tray menu: Red (the default),
+  Amber, Yellow, Green, Blue, Purple and Neutral (white).
 - **Starts when you sign in**, unless you untick that option in setup.
   `Quit WhatDay` in the tray menu stops it until the next sign-in or until it
   is started from the Start Menu.
 
 The tray menu holds everything: `About WhatDay`, `Support WhatDay (opens your
-browser)`, the six colours and `Quit WhatDay`. Clicking the strip itself does
+browser)`, the seven colours and `Quit WhatDay`. Clicking the strip itself does
 nothing, on purpose.
 
 ## What it does not do

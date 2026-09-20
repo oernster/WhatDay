@@ -12,9 +12,10 @@
     --muted: #9aa3b5;
     --faint: #6b7385;
 
-    /* The six palette shades, copied from internal/domain/palette.go. */
+    /* The seven palette shades, copied from internal/domain/palette.go. */
     --red: #ff6666;
     --amber: #ffb020;
+    --yellow: #f5f04a;
     --green: #4cd964;
     --blue: #5aa8ff;
     --purple: #c58cff;

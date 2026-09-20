@@ -18,6 +18,7 @@ func TestMenuModel(t *testing.T) {
 		{Kind: application.MenuSeparator},
 		{Kind: application.MenuColour, Label: "Red"},
 		{Kind: application.MenuColour, Label: "Amber", Checked: true},
+		{Kind: application.MenuColour, Label: "Yellow"},
 		{Kind: application.MenuColour, Label: "Green"},
 		{Kind: application.MenuColour, Label: "Blue"},
 		{Kind: application.MenuColour, Label: "Purple"},
