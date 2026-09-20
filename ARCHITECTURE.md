@@ -63,7 +63,7 @@ Pure functions over values handed in; no clock, no disk, no window.
 - Geometry: the strip's size from the taskbar height, clamping into a work
   area, the default position, placement across monitors and the drag
   threshold.
-- The palette: six named colours, one home for each value.
+- The palette: seven named colours, one home for each value.
 
 ### Application
 

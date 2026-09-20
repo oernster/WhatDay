@@ -45,11 +45,11 @@
     <div class="wrap hero">
         <div>
             <p class="eyebrow">
-                <span class="pill">v<!--VERSION-->1.0.1<!--/VERSION--></span>
+                <span class="pill">v<!--VERSION-->1.1.0<!--/VERSION--></span>
                 <span class="pill">Windows</span>
                 <span class="pill">Free and open source</span>
             </p>
-            <h1>What <span class="swear">fucking</span> day is it?</h1>
+            <h1>What <span class="swear">bloody</span> day is it?</h1>
             <p class="lead">Everything tells you the time and date; nothing tells you
                 the day. <strong>WhatDay does.</strong> It puts the name of the day in a
                 small dark strip above your taskbar, changes it at midnight and does
@@ -150,8 +150,8 @@
             <div class="stat">
                 <span class="n">2</span>
                 <p>Colour-science standards (WCAG contrast and CIEDE2000) consulted so
-                    six colours are legible and look nothing alike.</p>
-                <span class="aside">Blue and Purple were closest. They were checked.</span>
+                    seven colours are legible and look nothing alike.</p>
+                <span class="aside">Amber and Yellow are closest. They were checked.</span>
             </div>
             <div class="stat">
                 <span class="n">1 : 1</span>
@@ -204,7 +204,7 @@
                     <li><strong>Light mode.</strong> The strip is always dark. So is this
                         page. You were warned.</li>
                     <li><strong>Settings windows.</strong> The tray menu holds About,
-                        Support, six colours and Quit. That is the lot.</li>
+                        Support, seven colours and Quit. That is the lot.</li>
                     <li><strong>The internet.</strong> No updates, no telemetry, no
                         accounts. It sends nothing, ever.</li>
                     <li><strong>Other languages.</strong> The days are in English,
@@ -286,7 +286,7 @@
     refresh();
     setInterval(refresh, MINUTE / 4);
 
-    // The six colours recolour the strip and the page's accent together.
+    // The seven colours recolour the strip and the page's accent together.
     const swatches = document.querySelectorAll('.swatch');
     swatches.forEach((swatch) => {
         swatch.addEventListener('click', () => {
