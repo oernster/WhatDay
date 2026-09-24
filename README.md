@@ -14,7 +14,7 @@ WhatDay puts the name of the day in a small dark strip just above the Windows
 taskbar. `Saturday`. That is the whole product. It changes at midnight, in
 whatever timezone Windows is set to.
 
-Site: [oernster.github.io/WhatDay](https://oernster.github.io/WhatDay/)
+Site: [ernster.dev/WhatDay](https://ernster.dev/WhatDay/)
 
 ## Who it is for
 
