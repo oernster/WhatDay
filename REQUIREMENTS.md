@@ -33,7 +33,7 @@ In scope:
 - An update check against WhatDay's own GitHub releases, in the house style,
   ported from PigeonPost (Amendment 11).
 
-Out of scope (decided; see also 3.5 Won't this time):
+Out of scope (decided; see also 3.8 Won't this time):
 
 - Any language other than English.
 - A timezone choice inside WhatDay. The zone is the one Windows is set to.
@@ -600,13 +600,14 @@ start on the reference machine, measured from the log's start line to its
 shown line.
 
 **NFR-COL-001 Contrast**: Every palette shade shall reach at least 3.0:1 WCAG
-contrast against the measured dark Acrylic background. The day name is
-large text (at least 24 px, which is 18 pt), so 3:1 is the WCAG threshold. Verified
+contrast against the measured dark Acrylic background. The day name is large
+text (at least 24 px, which is 18 pt), so 3:1 is the WCAG threshold. Verified
 by a test over the palette table against the background constants recorded in
 Appendix A.
 
-**NFR-COL-002 Distinct colours**: Every pair of palette shades shall differ by a CIEDE2000 distance of at least 20, so no two choices
-look alike. Verified by the same test.
+**NFR-COL-002 Distinct colours**: Every pair of palette shades shall differ by
+a CIEDE2000 distance of at least 20, so no two choices look alike. Verified by
+the same test.
 
 **NFR-PRIV-001 One connection**: WhatDay's only network connection shall be
 the update check (FR-037, FR-038): an anonymous `GET` of its own latest
@@ -706,7 +707,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
-| 11 | 2026-09-28 | 1.3, 2.1, FR-032, new FR-037 to FR-039, NFR-PRIV-001, Won't list | The house update check arrives: automatic 3 s after start and every 24 h, plus `Check for updates` in the tray menu, with a Download, Skip This Version, Later prompt. NFR-PRIV-001 becomes one anonymous read of WhatDay's own releases; the setup program stays offline. The update check leaves the out-of-scope and Won't lists. | Owner's decision: wire in the house update check, handling the no-network promise as postal-gambit did, with an explicit exemption and the change disclosed rather than the promise broken silently. Measured: the check against the live releases answered current for 1.1.0 and offered v1.1.0 with `WhatDaySetup.exe` for 1.0.0; the TaskDialog record, packed as measured, answered `S_OK` and showed every field in place. |
+| 11 | 2026-09-28 | 1.3, 2.1, FR-032, new FR-037 to FR-039, NFR-PRIV-001, Won't list | The house update check arrives: automatic 3 s after start and every 24 h, plus `Check for updates` in the tray menu, with a Download, Skip This Version, Later prompt. NFR-PRIV-001 becomes one anonymous read of WhatDay's own releases; the setup program stays offline. The update check leaves the out-of-scope and Won't lists. | Owner's decision: wire in the house update check, handling the no-network promise as postal-gambit did, with an explicit exemption and the change disclosed rather than the promise broken silently. Measured: the check against the live releases answered current for the published version and offered it, with `WhatDaySetup.exe`, to an older one; the TaskDialog record, packed as measured, answered `S_OK` and showed every field in place. |
 | 10 | 2026-09-20 | 1.3, 2.3, FR-015 | Windows 10 leaves the out-of-scope list. The operating environment becomes Windows, built and tested on Windows 11 22H2 or later, with earlier versions untested rather than refused. FR-015 states that a refused backdrop is logged and not fatal. | Owner's decision after the docs pass found the specification and the site disagreeing: the site and the README already say WhatDay runs on Windows and name the tested version, so the specification is amended to match rather than the site narrowed back. Measured: nothing in the code gates on a build number and `applyDwm` logs a refused attribute rather than stopping. |
 | 9 | 2026-09-20 | FR-040 | Yellow `#F5F04A` joins the palette between Amber and Green, making seven colours. | Owner's request: the palette held every colour of the rainbow but that one. Measured: seven candidate shades were run through the palette suite's own contrast and CIEDE2000 helpers; `#F5F04A` carries the widest margin from Amber, at CIEDE2000 22.9 against a floor of 20; it reaches 13.22 contrast against the measured taskbar mean. It becomes the closest pair, replacing Blue and Purple at 26.4. |
 | 8 | 2026-09-19 | FR-071, FR-074 | FR-071 names going back as a route and states the Apps list entry as built: Uninstall and Modify, no Repair of its own. FR-074 makes the setup program dark only, with no theme toggle. | Owner's decision after the docs pass found both unmet: amend the specification to match what is built rather than build to it. |

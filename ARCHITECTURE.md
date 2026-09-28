@@ -93,9 +93,11 @@ process that really crashes, the real ICU.
 
 The Win32 surface, written against `golang.org/x/sys/windows` with no toolkit.
 It implements `View` and `Scheduler` and talks to the application through a
-`Controller` interface, plus an `Updater` for the update check. Its testable pieces (the menu mapping, the drawing,
-the support entry, the icon, the monitor reading) are tested; the message loop
-and window handling are verified by hand.
+`Controller` interface, plus an `Updater` for the update check. Its testable
+pieces are tested: the menu mapping, the drawing, the support entry, the icon,
+the monitor reading, the update check's hand-off and the update dialog's
+record. The message loop, window handling and the dialogs themselves are
+verified by hand.
 
 ## How a day is shown
 
@@ -179,9 +181,9 @@ confirmed fixed on the reference machine.
 
 `%APPDATA%\WhatDay\settings.json` holds the colour name, plus the position
 once the strip has been dragged and the release tag once a version has been
-skipped. The file's shape is its own type in the
-settings package, kept apart from the port's `Settings` on purpose: the file is a format and the
-port is a type. Saves go to a temporary file first, then one rename replaces
+skipped. The file's shape is its own type in the settings package, kept apart
+from the port's `Settings` on purpose: the file is a format and the port is a
+type. Saves go to a temporary file first, then one rename replaces
 the target, so an interrupted save leaves the previous file intact. A save
 that fails keeps the choice for the running session and logs why.
 
@@ -259,8 +261,9 @@ step. It is a facade; the install policy lives in
 - **Per user.** Files under `%LOCALAPPDATA%\Programs\WhatDay`; the Apps list
   entry and the sign-in entry under `HKCU`. Windows never asks for
   administrator rights.
-- **WhatDay is closed first** by image name, never by process tree, before any
-  file is touched.
+- **WhatDay is closed first**, before any file is touched: setup asks, then
+  ends it by image name, never by process tree. The install and uninstall
+  calls also refuse outright while it runs, behind the page's own check.
 - **The payload is fenced**: every archive entry is checked against the
   install folder before any is written.
 - **A step log** in `%TEMP%\WhatDaySetup.log`, flushed after every step, since
@@ -285,7 +288,7 @@ that are never committed. Nothing in the source holds a version.
 
 | Decision | Chosen | Rejected: what and why |
 |---|---|---|
-| UI toolkit for the strip | Raw Win32 through `x/sys/windows` | A toolkit: constraint C-2 keeps the application to the standard library and `x/sys`; one popup window, one menu and one message box need nothing more. |
+| UI toolkit for the strip | Raw Win32 through `x/sys/windows` | A toolkit: constraint C-2 keeps the application to the standard library and `x/sys`; one popup window, one menu, a message box and a TaskDialog need nothing more. |
 | Where the day appears | A strip above the taskbar | A taskbar button: abandoned before measurement in favour of the strip. Drawing on the taskbar: measured, it covers a topmost window. |
 | Background | Dark Acrylic | Mica, Mica Alt and solid colours: tried by eye on the reference machine; they looked alike and none matched the taskbar, which is tinted by the wallpaper. |
 | Timezone | Follow Windows, re-read every refresh | A fixed zone (the first design): a laptop travels. `time.Local`: read once per process. |
