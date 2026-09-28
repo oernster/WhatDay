@@ -110,6 +110,18 @@ func (ind *Indicator) MovedTo(position domain.Point) {
 	ind.save()
 }
 
+// SkippedVersion answers the release tag the user chose to skip; empty when
+// none has been (FR-039).
+func (ind *Indicator) SkippedVersion() string { return ind.settings.SkippedVersion }
+
+// SkipVersion remembers tag as skipped, so the automatic check never offers
+// it again (FR-039).
+func (ind *Indicator) SkipVersion(tag string) {
+	ind.settings.SkippedVersion = tag
+	ind.log.Printf("skipping %s", tag)
+	ind.save()
+}
+
 func (ind *Indicator) save() {
 	if err := ind.store.Save(ind.settings); err != nil {
 		ind.log.Printf("settings not saved, kept for this run: %v", err)

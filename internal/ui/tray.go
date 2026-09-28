@@ -13,6 +13,7 @@ const (
 	cmdAbout      = 1
 	cmdQuit       = 2
 	cmdDonate     = 3
+	cmdUpdates    = 4
 	cmdColourBase = 100
 )
 
@@ -36,6 +37,8 @@ func menuEntries(items []application.MenuItem) []menuEntry {
 			entries = append(entries, menuEntry{id: cmdQuit, flags: mfString, label: item.Label})
 		case application.MenuDonate:
 			entries = append(entries, menuEntry{id: cmdDonate, flags: mfString, label: item.Label})
+		case application.MenuUpdates:
+			entries = append(entries, menuEntry{id: cmdUpdates, flags: mfString, label: item.Label})
 		case application.MenuColour:
 			flags := uintptr(mfString)
 			if item.Checked {
@@ -60,7 +63,7 @@ func chosen(entries []menuEntry, command uintptr) (menuEntry, bool) {
 }
 
 // showMenu opens the tray menu at the pointer and acts on the choice
-// (FR-031 to FR-036).
+// (FR-031 to FR-037).
 func (w *Window) showMenu() {
 	entries := menuEntries(w.controller.Menu())
 	menu, _, _ := pCreatePopupMenu.Call()
@@ -86,6 +89,8 @@ func (w *Window) showMenu() {
 		w.showAbout()
 	case entry.id == cmdDonate:
 		w.donate()
+	case entry.id == cmdUpdates:
+		w.checkForUpdates(true)
 	case entry.id == cmdQuit:
 		// Destroying the window removes the tray icon and ends the loop;
 		// main then releases the single-instance lock (Amendment 5).

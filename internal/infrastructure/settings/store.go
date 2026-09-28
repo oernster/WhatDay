@@ -30,8 +30,9 @@ const (
 // purpose: the file is a format and the port is a type. The json names are
 // the contract and they are here.
 type stored struct {
-	Colour   string    `json:"colour"`
-	Position *position `json:"position,omitempty"`
+	Colour        string    `json:"colour"`
+	Position      *position `json:"position,omitempty"`
+	SkippedUpdate string    `json:"skippedUpdate,omitempty"`
 }
 
 type position struct {
@@ -79,7 +80,7 @@ func (s *Store) Load() (application.Settings, bool, error) {
 	if err := json.Unmarshal(raw, &held); err != nil {
 		return application.Settings{}, false, fmt.Errorf("parsing %s: %w", s.path, err)
 	}
-	loaded := application.Settings{ColourName: held.Colour}
+	loaded := application.Settings{ColourName: held.Colour, SkippedVersion: held.SkippedUpdate}
 	if held.Position != nil {
 		loaded.Position = domain.Point{X: held.Position.X, Y: held.Position.Y}
 		loaded.HasPosition = true
@@ -94,11 +95,11 @@ func (s *Store) Save(chosen application.Settings) error {
 	if s.path == "" {
 		return errNoFolder
 	}
-	held := stored{Colour: chosen.ColourName}
+	held := stored{Colour: chosen.ColourName, SkippedUpdate: chosen.SkippedVersion}
 	if chosen.HasPosition {
 		held.Position = &position{X: chosen.Position.X, Y: chosen.Position.Y}
 	}
-	// The encode cannot fail: stored holds a string and two ints. The error is
+	// The encode cannot fail: stored holds strings and two ints. The error is
 	// discarded rather than checked, because a branch nothing can reach is a
 	// branch nothing can test.
 	raw, _ := json.MarshalIndent(held, "", "  ")

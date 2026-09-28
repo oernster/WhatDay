@@ -32,8 +32,10 @@ In order, it:
 2. Runs [`test.ps1`](TESTING.md). A failure stops the build; there is no
    switch to skip it.
 3. Reads `VERSION`, which must be `major.minor.patch`.
-4. Writes `cmd/whatday/resource.syso` with goversioninfo: the icon plus the
-   executable's properties (description, version, copyright).
+4. Writes `cmd/whatday/resource.syso` with goversioninfo: the icon, the
+   executable's properties (description, version, copyright) and
+   `assets/WhatDay.manifest`, which asks for version 6 of the common controls
+   so the update prompt can show its three named buttons.
 5. Builds `build/bin/WhatDay.exe` with `-H windowsgui`, stripped and with the
    version passed in through `-ldflags`.
 6. Zips it into `installer/payload.zip`.
@@ -74,9 +76,16 @@ Only one copy runs per user session. If the installed WhatDay is running, the
 new one writes `already running; this copy exits` to the log and stops, so
 choose `Quit WhatDay` from the tray first.
 
+A copy run from source differs from a built one in two ways. Its version is
+`0.0.0-dev`, which compares with no release, so `Check for updates` answers
+that GitHub could not be reached and the log says why. It carries no
+manifest, so an update prompt would be a Yes, No, Cancel box explaining its
+buttons rather than the three named ones.
+
 Everything WhatDay does is written to `%LOCALAPPDATA%\WhatDay\WhatDay.log`:
 the version, the timezone, the day it shows, each layout, each drag, each
-resume and clock change. Read it first when something looks wrong.
+resume and clock change, each failed update check. Read it first when
+something looks wrong.
 
 ## The icon
 
@@ -137,13 +146,15 @@ python -m http.server 8000 --directory docs
    `dist-installer/WhatDaySetup.exe`.
 
 The README's install instructions point at the Releases page, so step 4 is
-what users see.
+what users see. It is also what the update check sees: publishing the release
+is the moment every running WhatDay starts offering it, with the attached
+`.exe` as its download. A tag alone, a draft or a prerelease is never offered.
 
 ## Standing rules
 
 - Domain and application stay at 100% coverage; the gate fails otherwise.
 - No Go file over 400 lines; none between 381 and 399.
-- No `net` import anywhere.
+- No `net` import anywhere but `net/http` in `internal/infrastructure/update`.
 - Every exported type has a doc comment.
 - No version string outside `VERSION`.
 

@@ -51,17 +51,27 @@ Site: [ernster.dev/WhatDay](https://ernster.dev/WhatDay/)
 - **Starts when you sign in**, unless you untick that option in setup.
   `Quit WhatDay` in the tray menu stops it until the next sign-in or until it
   is started from the Start Menu.
+- **Tells you when there is a new version.** A few seconds after it starts,
+  then once a day, WhatDay asks GitHub for its latest release. When there is a
+  newer one it offers Download, Skip This Version or Later; a skipped version
+  is never offered again. `Check for updates` in the tray menu asks at once
+  and always answers, skip or not. A check that cannot reach GitHub stays
+  silent unless you asked for it.
 
-The tray menu holds everything: `About WhatDay`, `Support WhatDay (opens your
-browser)`, the seven colours and `Quit WhatDay`. Clicking the strip itself does
-nothing, on purpose.
+The tray menu holds everything: `About WhatDay`, `Check for updates`,
+`Support WhatDay (opens your browser)`, the seven colours and `Quit WhatDay`.
+Clicking the strip itself does nothing, on purpose.
 
 ## What it does not do
 
-- **No network.** WhatDay makes no connection of any kind: no update check, no
-  telemetry, no accounts. A structural test fails the build if any of its code
-  imports a network package. The Support entry hands a web address to your
-  browser, which is the program that connects.
+- **One connection; nothing about you in it.** The update check is the
+  only connection WhatDay makes: an anonymous read of WhatDay's public
+  releases list on GitHub, a few seconds after it starts, once a day after
+  that and whenever you choose `Check for updates`. It sends nothing about you
+  or your machine: no telemetry, no accounts. A structural test fails the
+  build if any other code imports a network package. The setup program makes
+  no connection at all. The Support entry and Download hand a web address to
+  your browser, which is the program that connects.
 - **No administrator rights.** Setup installs for your account only.
 - **No correcting the clock.** WhatDay trusts the Windows clock; keeping that
   right is Windows' job.
@@ -93,7 +103,7 @@ list entry and everything WhatDay wrote: its settings and its log.
 | What | Where |
 |---|---|
 | The program | `%LOCALAPPDATA%\Programs\WhatDay` |
-| The colour and position | `%APPDATA%\WhatDay\settings.json` |
+| The colour, the position and any skipped version | `%APPDATA%\WhatDay\settings.json` |
 | The log | `%LOCALAPPDATA%\WhatDay\WhatDay.log`, started afresh past 1 MB |
 | The setup log | `%TEMP%\WhatDaySetup.log` |
 
@@ -102,7 +112,7 @@ list entry and everything WhatDay wrote: its settings and its log.
 | Part | What |
 |---|---|
 | Language | Go, cgo disabled |
-| The application | The Go standard library plus `golang.org/x/sys/windows`: Win32 directly, no UI toolkit |
+| The application | The Go standard library plus `golang.org/x/sys/windows`: Win32 directly, no UI toolkit; the update prompt is Windows' own TaskDialog |
 | Timezone rules | The IANA database embedded in the binary (`time/tzdata`); Windows' own ICU names the zone |
 | The setup program | Wails v2, with a hand-written page |
 | Tests | Go's `testing`, gofmt, go vet, staticcheck |
@@ -133,8 +143,8 @@ That stamps the site's version, runs the whole test gate, then builds
 ## Supporting the project
 
 The tray menu carries `Support WhatDay (opens your browser)`. It hands a PayPal
-page to your browser; WhatDay itself sends nothing, so the no-network promise
-above is unchanged by the entry existing.
+page to your browser; WhatDay itself sends nothing, so the entry adds no
+connection to the one described above.
 
 WhatDay is free and stays free. Donations support maintenance and continued
 development. Nothing is withheld behind one: there is no paid tier, no licence

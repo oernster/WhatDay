@@ -14,6 +14,7 @@ func TestMenuModel(t *testing.T) {
 	r.ind.ChooseColour("Amber")
 	want := []application.MenuItem{
 		{Kind: application.MenuAbout, Label: "About WhatDay"},
+		{Kind: application.MenuUpdates, Label: "Check for updates"},
 		{Kind: application.MenuDonate, Label: "Support WhatDay (opens your browser)"},
 		{Kind: application.MenuSeparator},
 		{Kind: application.MenuColour, Label: "Red"},

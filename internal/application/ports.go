@@ -34,11 +34,13 @@ type Scheduler interface {
 	WakeAt(instant time.Time)
 }
 
-// Settings is what WhatDay remembers between runs (FR-050).
+// Settings is what WhatDay remembers between runs (FR-050). SkippedVersion is
+// the release tag the user chose to skip, exactly as it was released (FR-039).
 type Settings struct {
-	ColourName  string
-	Position    domain.Point
-	HasPosition bool
+	ColourName     string
+	Position       domain.Point
+	HasPosition    bool
+	SkippedVersion string
 }
 
 // SettingsStore loads and saves Settings. Load answers found false with no
@@ -46,6 +48,28 @@ type Settings struct {
 type SettingsStore interface {
 	Load() (settings Settings, found bool, err error)
 	Save(settings Settings) error
+}
+
+// ReleaseAsset names one file attached to a release.
+type ReleaseAsset struct {
+	Name        string
+	DownloadURL string
+}
+
+// ReleaseInfo is the latest published release. Version is the tag exactly as
+// released, a leading "v" included.
+type ReleaseInfo struct {
+	Version string
+	PageURL string
+	Assets  []ReleaseAsset
+}
+
+// ReleaseSource answers the latest published release (FR-037, FR-038). Only
+// a published release that is neither a draft nor a prerelease is ever
+// answered, so a tag pushed mid-development can never prompt. It is the one
+// port that reaches the network (NFR-PRIV-001, Amendment 11).
+type ReleaseSource interface {
+	LatestRelease() (ReleaseInfo, error)
 }
 
 // Log records what happened, for reading after the fact.

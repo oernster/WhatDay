@@ -16,8 +16,8 @@ const httpsScheme = "https://"
 const donateRefused = application.ProductName + " could not open a browser for the support page."
 
 // openExternal hands address to the desktop, which opens it in the user's
-// browser. WhatDay fetches nothing itself (NFR-PRIV-001). Anything but an
-// https address is refused before the desktop sees it.
+// browser; nothing here fetches it (NFR-PRIV-001). Anything but an https
+// address is refused before the desktop sees it.
 func openExternal(address string) error {
 	if !strings.HasPrefix(address, httpsScheme) {
 		return fmt.Errorf("refusing to open %q: only https addresses go to the browser", address)

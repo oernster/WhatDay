@@ -13,10 +13,13 @@ import (
 // className names the indicator's window class.
 const className = application.ProductName + "Indicator"
 
-// NewWindow prepares the indicator; Run opens it.
-func NewWindow(log application.Log, now func() time.Time) *Window {
-	w := &Window{log: log, now: now, open: openExternal}
+// NewWindow prepares the indicator, checking for updates through updater;
+// Run opens it.
+func NewWindow(log application.Log, now func() time.Time, updater Updater) *Window {
+	w := &Window{log: log, now: now, open: openExternal, updates: newUpdateState(updater)}
 	w.alert = w.warn
+	w.updates.ask = w.askUpdate
+	w.updates.tell = w.inform
 	return w
 }
 
@@ -42,6 +45,7 @@ func (w *Window) Run(controller Controller) error {
 	_, _, _ = pShowWindow.Call(w.hwnd, swShowNoAct)
 	w.addTray()
 	w.appBar(abmNew)
+	w.armUpdateCheck(firstUpdateCheck)
 
 	var m msg
 	for {
@@ -105,8 +109,15 @@ func (w *Window) handle(hwnd, message, wParam, lParam, taskbarCreated uintptr) u
 		}
 		return 0
 	case wmTimer:
+		if wParam == updateTimerID {
+			w.updateTimerFired()
+			return 0
+		}
 		// Every wake refreshes; Refresh re-arms (FR-003).
 		w.controller.Refresh()
+		return 0
+	case wmUpdateChecked:
+		w.updateChecked()
 		return 0
 	case wmTimeChange:
 		w.log.Printf("the clock or timezone changed")

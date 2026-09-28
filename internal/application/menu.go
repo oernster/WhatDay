@@ -12,6 +12,7 @@ const (
 	MenuColour
 	MenuQuit
 	MenuDonate
+	MenuUpdates
 )
 
 // MenuItem is one entry of the tray menu. For a colour entry, Label is the
@@ -31,11 +32,11 @@ const (
 	DonateLabel = "Support " + ProductName + " (opens your browser)"
 )
 
-// Menu answers the whole tray menu (FR-032, Amendments 5 and 6): About, the
-// Support entry, a separator, every palette colour in order with the current
-// one checked, another separator, then Quit.
+// Menu answers the whole tray menu (FR-032, Amendments 5, 6 and 11): About,
+// Check for updates, the Support entry, a separator, every palette colour in
+// order with the current one checked, another separator, then Quit.
 func (ind *Indicator) Menu() []MenuItem {
-	items := []MenuItem{{Kind: MenuAbout, Label: AboutLabel}, {Kind: MenuDonate, Label: DonateLabel}, {Kind: MenuSeparator}}
+	items := []MenuItem{{Kind: MenuAbout, Label: AboutLabel}, {Kind: MenuUpdates, Label: UpdatesLabel}, {Kind: MenuDonate, Label: DonateLabel}, {Kind: MenuSeparator}}
 	for _, c := range domain.Palette() {
 		items = append(items, MenuItem{Kind: MenuColour, Label: c.Name, Checked: c.Name == ind.settings.ColourName})
 	}

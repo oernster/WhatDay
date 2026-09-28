@@ -41,6 +41,31 @@ func TestRoundTripWithoutPosition(t *testing.T) {
 	}
 }
 
+func TestRoundTripWithASkippedRelease(t *testing.T) {
+	t.Parallel()
+	store := storeIn(t)
+	want := application.Settings{ColourName: "Yellow", SkippedVersion: "v1.2.0"}
+	if err := store.Save(want); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	if got, found, err := store.Load(); err != nil || !found || got != want {
+		t.Fatalf("load: got %+v, %v, %v; want %+v", got, found, err, want)
+	}
+}
+
+func TestASkippedReleaseIsNamedInTheFile(t *testing.T) {
+	t.Parallel()
+	store := storeIn(t)
+	if err := store.Save(application.Settings{ColourName: "Red", SkippedVersion: "v1.2.0"}); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	raw, _ := os.ReadFile(store.Path())
+	want := "{\n  \"colour\": \"Red\",\n  \"skippedUpdate\": \"v1.2.0\"\n}"
+	if string(raw) != want {
+		t.Fatalf("file holds %q, want %q", raw, want)
+	}
+}
+
 func TestFileShapeIsTheContract(t *testing.T) {
 	t.Parallel()
 	store := storeIn(t)

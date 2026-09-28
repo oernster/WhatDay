@@ -17,6 +17,8 @@ type Controller interface {
 	ChooseColour(name string)
 	MovedTo(position domain.Point)
 	Placement(size domain.Size, monitors []domain.Monitor, primaryWork domain.Rect) domain.Point
+	SkippedVersion() string
+	SkipVersion(tag string)
 }
 
 // maxWakeGap bounds each wait on the way to midnight. A timer that drifts
@@ -36,8 +38,9 @@ type Window struct {
 	// open hands an address to the browser and alert says something on
 	// screen; both are fields so a test can prove what is asked for without
 	// opening a browser or a dialog.
-	open  func(address string) error
-	alert func(text string)
+	open    func(address string) error
+	alert   func(text string)
+	updates updateState
 
 	day    string
 	colour domain.Colour

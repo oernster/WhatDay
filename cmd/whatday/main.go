@@ -13,6 +13,7 @@ import (
 	"github.com/oernster/WhatDay/internal/infrastructure/instance"
 	"github.com/oernster/WhatDay/internal/infrastructure/runlog"
 	"github.com/oernster/WhatDay/internal/infrastructure/settings"
+	"github.com/oernster/WhatDay/internal/infrastructure/update"
 	"github.com/oernster/WhatDay/internal/infrastructure/zone"
 	"github.com/oernster/WhatDay/internal/ui"
 )
@@ -37,7 +38,7 @@ func main() {
 		defer func() { _ = lock.Release() }()
 	}
 
-	window := ui.NewWindow(log, time.Now)
+	window := ui.NewWindow(log, time.Now, application.NewUpdateChecker(update.NewSource(), appVersion))
 	indicator := application.NewIndicator(clock.System{}, zone.NewWindows(time.Local), window, window, settings.NewStore(), log)
 	if err := window.Run(indicator); err != nil {
 		log.Printf("cannot open the indicator: %v", err)

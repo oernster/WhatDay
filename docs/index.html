@@ -46,7 +46,7 @@
     <div class="wrap hero">
         <div>
             <p class="eyebrow">
-                <span class="pill">v<!--VERSION-->1.1.0<!--/VERSION--></span>
+                <span class="pill">v<!--VERSION-->1.2.0<!--/VERSION--></span>
                 <span class="pill">Windows</span>
                 <span class="pill">Free and open source</span>
             </p>
@@ -136,13 +136,13 @@
                 <span class="aside">There is no switch to skip it. That was deliberate.</span>
             </div>
             <div class="stat">
-                <span class="n">10</span>
+                <span class="n">11</span>
                 <p>Structural tests that fail the build if the architecture of this
                     one-word program is compromised.</p>
                 <span class="aside">Four layers. Clean architecture. For "Saturday".</span>
             </div>
             <div class="stat">
-                <span class="n">600+</span>
+                <span class="n">700+</span>
                 <p>Lines of formal requirements specification, every requirement tied
                     to the test that proves it. Every change of mind is a numbered
                     amendment.</p>
@@ -166,10 +166,11 @@
                 <span class="aside">It has a repair screen. For a word.</span>
             </div>
             <div class="stat">
-                <span class="n">0</span>
-                <p>Network connections. Not "we promise": a test fails the build if any
-                    of its code so much as imports a network package.</p>
-                <span class="aside">It does not need the internet to know it is Wednesday.</span>
+                <span class="n">1</span>
+                <p>Network connection: an anonymous look at its own releases list, to
+                    tell you about a new version. Not "we promise": a test fails the
+                    build if any other code so much as imports a network package.</p>
+                <span class="aside">It still does not need the internet to know it is Wednesday.</span>
             </div>
         </div>
         <p class="verdict">Is it overkill? Yes. Is it ever wrong about the day? Also,
@@ -195,6 +196,9 @@
                         that takes the whole screen, as the taskbar does.</li>
                     <li><strong>Starts when you sign in</strong>, if you leave that ticked
                         in setup. Quit it from the tray whenever you like.</li>
+                    <li><strong>Tells you about a new version</strong> once a day, with
+                        Download, Skip This Version or Later. Skip it and it stays
+                        skipped.</li>
                 </ul>
             </div>
             <div class="card">
@@ -205,9 +209,11 @@
                     <li><strong>Light mode.</strong> The strip is always dark. So is this
                         page. You were warned.</li>
                     <li><strong>Settings windows.</strong> The tray menu holds About,
-                        Support, seven colours and Quit. That is the lot.</li>
-                    <li><strong>The internet.</strong> No updates, no telemetry, no
-                        accounts. It sends nothing, ever.</li>
+                        Check for updates, Support, seven colours and Quit. That is the
+                        lot.</li>
+                    <li><strong>Telemetry.</strong> No accounts, no tracking. Its one
+                        connection asks GitHub for its latest release and sends nothing
+                        about you. Setup connects to nothing at all.</li>
                     <li><strong>Other languages.</strong> The days are in English,
                         wherever you are.</li>
                     <li><strong>Anything but Windows.</strong> Windows only, for good.</li>
@@ -219,7 +225,7 @@
     <section class="wrap" id="download">
         <p class="kicker">Download</p>
         <h2>Install it once. Never wonder again.</h2>
-        <span class="dl-version" id="dl-version">Version <!--VERSION-->1.1.0<!--/VERSION--></span>
+        <span class="dl-version" id="dl-version">Version <!--VERSION-->1.2.0<!--/VERSION--></span>
         <!--
             The button points at GitHub's releases/latest/download redirect, which always
             serves the newest release's file. The name carries no version, so the link

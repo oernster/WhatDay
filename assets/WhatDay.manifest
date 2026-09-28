@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Embedded in WhatDay.exe by build.ps1 through goversioninfo. Its one job is
+  to ask for version 6 of the common controls, which is where TaskDialog
+  lives: the update prompt's Download, Skip This Version and Later buttons
+  need it (FR-038). Without this file WhatDay still runs; the prompt falls
+  back to a plain message box.
+-->
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version="6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" language="*"/>
+    </dependentAssembly>
+  </dependency>
+</assembly>

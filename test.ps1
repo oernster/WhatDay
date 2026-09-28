@@ -83,20 +83,25 @@ try {
 # process work change the real machine, so the install on the reference
 # machine is its test rather than every run of the suite.
 #
+# update is whole: every answer GitHub could give arrives through an injected
+# client, so no test reaches the network.
+#
 # zone sits below 100 by three failures that cannot be caused on demand:
 # Windows refusing the zone query, icu.dll missing, ICU reporting an error.
 #
-# ui is the Win32 surface. Its menu mapping, drawing, icon and monitor reading
-# are tested; the message loop and window handling need a desktop and a person
-# at it, so they are verified by hand against REQUIREMENTS.md.
+# ui is the Win32 surface. Its menu mapping, drawing, icon, monitor reading,
+# update check hand-off and dialog record are tested; the message loop, window
+# handling and the dialogs themselves need a desktop and a person at it, so
+# they are verified by hand against REQUIREMENTS.md.
 $measured = [ordered]@{
     './internal/infrastructure/clock'    = 100
     './internal/infrastructure/instance' = 100
     './internal/infrastructure/runlog'   = 74
     './internal/infrastructure/settings' = 100
     './internal/infrastructure/setup'    = 54
+    './internal/infrastructure/update'   = 100
     './internal/infrastructure/zone'     = 92
-    './internal/ui'                      = 31
+    './internal/ui'                      = 39
 }
 
 Write-Host 'Measuring infrastructure...'

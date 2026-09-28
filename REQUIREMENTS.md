@@ -30,6 +30,8 @@ In scope:
 - The strip's position, chosen by dragging, remembered across restarts.
 - Start at login, as an option in the setup program (Amendment 7).
 - A setup program in the house style, ported from PigeonPost's `installer/`.
+- An update check against WhatDay's own GitHub releases, in the house style,
+  ported from PigeonPost (Amendment 11).
 
 Out of scope (decided; see also 3.5 Won't this time):
 
@@ -41,7 +43,7 @@ Out of scope (decided; see also 3.5 Won't this time):
 - Any background choice. The background is fixed (FR-015).
 - Every operating system other than Windows. WhatDay is a Windows
   application only, permanently (Amendment 10).
-- Any network access, including an update check.
+- Any network access other than the update check (Amendment 11).
 - Correcting the Windows clock. WhatDay trusts the system clock; keeping it
   right is Windows' job (time synchronisation), as is any leap second.
 
@@ -74,9 +76,10 @@ Out of scope (decided; see also 3.5 Won't this time):
 
 ### 2.1 Product perspective
 
-A new, standalone Windows desktop utility. It has no server, no network
-access, no dependencies on other applications and no data other than its own
-settings file.
+A new, standalone Windows desktop utility. It has no server, no dependencies
+on other applications and no data other than its own settings file. Its one
+network access is the update check, an anonymous read of its public releases
+list (NFR-PRIV-001, Amendment 11).
 
 ### 2.2 User classes
 
@@ -366,9 +369,9 @@ that verifies it.
 **FR-032 Menu contents**
 - Priority: Must
 - Requirement: The menu shall contain exactly: `About WhatDay`,
-  `Support WhatDay (opens your browser)`, a separator, one item per palette
-  colour with the current colour checked, a separator, then `Quit WhatDay`
-  (Amendments 5 and 6).
+  `Check for updates`, `Support WhatDay (opens your browser)`, a separator,
+  one item per palette colour with the current colour checked, a separator,
+  then `Quit WhatDay` (Amendments 5, 6 and 11).
 - Verified by: `internal/application/menu_test.go::TestMenuModel`,
   `internal/ui/ui_test.go::TestMenuEntriesFollowTheModel`
 
@@ -406,6 +409,48 @@ that verifies it.
 - Verified by: `internal/application/menu_test.go::TestDonateURLIsWhatDaysOwn`,
   `internal/ui/browser_test.go::TestDonateAsksForWhatDaysAddressOnly`,
   `TestDonateRefusedSaysSo`, `TestOpenExternalRefusesAnythingButHTTPS`
+
+**FR-037 Check for updates** (Amendment 11)
+- Priority: Should
+- Requirement: When `Check for updates` is chosen, WhatDay shall ask GitHub for
+  its latest published release, ignoring any skipped version. It shall show
+  the prompt of FR-038 when that release is newer than the running version;
+  `You are running the latest version.` when it is not; `The update check
+  could not reach GitHub. Please try again later.` when the release cannot be
+  read or either version cannot be compared.
+- Verified by: `internal/application/update_test.go::TestRepliesFollowWhoAsked`,
+  `TestVersionsCompareNumberByNumber`,
+  `TestARunningVersionThatIsNotNumbersCannotBeCompared`,
+  `internal/ui/update_test.go::TestOnlyACheckTheUserAskedForSpeaksWhenThereIsNothingNew`;
+  manual.
+
+**FR-038 Automatic check and prompt** (Amendment 11)
+- Priority: Should
+- Requirement: WhatDay shall check for a newer release 3 s after the indicator
+  appears and every 24 h of running after that, off the window's thread, with
+  a 5 s limit on the request. Where a newer release has not been skipped, it
+  shall show `WhatDay <new> is available.` over `You are running <current>.`
+  with the buttons `Download`, `Skip This Version` and `Later`. Download shall
+  hand the release's `.exe` (else its page) to the browser. An automatic check
+  that finds nothing new or fails shall show nothing and log any failure.
+  Where TaskDialog is unavailable, a Yes, No, Cancel message box shall carry
+  the same choice with its buttons explained.
+- Verified by: `internal/application/update_test.go::TestANewerReleaseIsOfferedWithItsSetupProgram`,
+  `TestAReleaseWithoutASetupProgramOffersItsPage`,
+  `internal/ui/update_test.go::TestEachAnswerToThePromptIsCarriedOut`,
+  `TestAPanickingCheckIsUnreachableAndSaysWhy`,
+  `TestTheDialogRecordIsPackedAsMeasured`,
+  `internal/infrastructure/update/github_test.go`; manual.
+
+**FR-039 Skip a version** (Amendment 11)
+- Priority: Should
+- Requirement: When `Skip This Version` is chosen, WhatDay shall save the
+  release's tag in `settings.json` and the automatic check shall not offer
+  that release again. A skip that cannot be saved holds for the running
+  session (FR-054).
+- Verified by: `internal/application/update_test.go::TestASkippedReleaseIsSeenButNotOffered`,
+  `TestASkipIsRememberedAcrossRuns`, `TestAnUnsavedSkipHoldsForThisRun`,
+  `internal/infrastructure/settings/store_test.go::TestRoundTripWithASkippedRelease`
 
 ### 3.4 Functional requirements: colours
 
@@ -563,11 +608,18 @@ Appendix A.
 **NFR-COL-002 Distinct colours**: Every pair of palette shades shall differ by a CIEDE2000 distance of at least 20, so no two choices
 look alike. Verified by the same test.
 
-**NFR-PRIV-001 No network**: WhatDay and its setup program shall make no
-network connections. The Support entry (FR-036) hands an address to the
-browser, which is the program that connects. Verified by
+**NFR-PRIV-001 One connection**: WhatDay's only network connection shall be
+the update check (FR-037, FR-038): an anonymous `GET` of its own latest
+release from `api.github.com`, sending nothing about the user or the machine.
+The setup program shall make none. The Support entry (FR-036) and Download
+hand an address to the browser, which is the program that connects.
+(Amendment 11.) Verified by
 `tests/structural/boundary_test.go::TestNoNetworkImports`, which forbids `net`
-and every `net/` package in the repository's own code.
+and every `net/` package in the repository's own code except `net/http` in
+`internal/infrastructure/update`; `TestUpdateCheckExemptionIsStillNeeded`,
+which fails once that package no longer needs it; and
+`internal/infrastructure/update/github_test.go::TestTheRequestAsksWhatDaysLatestReleaseAsJSON`,
+which asserts the address.
 
 **NFR-MAINT-001 Coverage**: `internal/domain` and `internal/application`
 shall be held at 100% statement coverage by `test.ps1`, which `build.ps1` runs
@@ -589,7 +641,6 @@ two-line opening beneath it) stays verbatim; everything added goes below it.
 
 | Item | Reason |
 |---|---|
-| Update check | Personal tool; no network (NFR-PRIV-001). |
 | Background choice | Measured: the alternatives looked alike (M-4). |
 | Auto-hide taskbar support | Rests on A-2; the work area does not exclude an auto-hidden taskbar. |
 | Taskbar at the top or sides | Rests on A-2. |
@@ -655,6 +706,7 @@ and FR-073. Q-6 was decided the same day: follow the Windows zone
 
 | No. | Date | Requirement | Change | Reason |
 |---|---|---|---|---|
+| 11 | 2026-09-28 | 1.3, 2.1, FR-032, new FR-037 to FR-039, NFR-PRIV-001, Won't list | The house update check arrives: automatic 3 s after start and every 24 h, plus `Check for updates` in the tray menu, with a Download, Skip This Version, Later prompt. NFR-PRIV-001 becomes one anonymous read of WhatDay's own releases; the setup program stays offline. The update check leaves the out-of-scope and Won't lists. | Owner's decision: wire in the house update check, handling the no-network promise as postal-gambit did, with an explicit exemption and the change disclosed rather than the promise broken silently. Measured: the check against the live releases answered current for 1.1.0 and offered v1.1.0 with `WhatDaySetup.exe` for 1.0.0; the TaskDialog record, packed as measured, answered `S_OK` and showed every field in place. |
 | 10 | 2026-09-20 | 1.3, 2.3, FR-015 | Windows 10 leaves the out-of-scope list. The operating environment becomes Windows, built and tested on Windows 11 22H2 or later, with earlier versions untested rather than refused. FR-015 states that a refused backdrop is logged and not fatal. | Owner's decision after the docs pass found the specification and the site disagreeing: the site and the README already say WhatDay runs on Windows and name the tested version, so the specification is amended to match rather than the site narrowed back. Measured: nothing in the code gates on a build number and `applyDwm` logs a refused attribute rather than stopping. |
 | 9 | 2026-09-20 | FR-040 | Yellow `#F5F04A` joins the palette between Amber and Green, making seven colours. | Owner's request: the palette held every colour of the rainbow but that one. Measured: seven candidate shades were run through the palette suite's own contrast and CIEDE2000 helpers; `#F5F04A` carries the widest margin from Amber, at CIEDE2000 22.9 against a floor of 20; it reaches 13.22 contrast against the measured taskbar mean. It becomes the closest pair, replacing Blue and Purple at 26.4. |
 | 8 | 2026-09-19 | FR-071, FR-074 | FR-071 names going back as a route and states the Apps list entry as built: Uninstall and Modify, no Repair of its own. FR-074 makes the setup program dark only, with no theme toggle. | Owner's decision after the docs pass found both unmet: amend the specification to match what is built rather than build to it. |

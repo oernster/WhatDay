@@ -47,10 +47,11 @@ the moment cover is lost; it is raised when cover rises.
 | `infrastructure/clock` | 100 | |
 | `infrastructure/instance` | 100 | |
 | `infrastructure/settings` | 100 | |
+| `infrastructure/update` | 100 | |
 | `infrastructure/zone` | 92 | Three failures cannot be caused on demand: Windows refusing the zone query, `icu.dll` missing, ICU reporting an error. |
 | `infrastructure/runlog` | 74 | Its crash paths run in child processes the tests start on purpose. The tests prove them by reading the child's log; coverage cannot see into another process. Two more failures cannot be caused on demand. |
 | `infrastructure/setup` | 54 | The route, the extraction, the step log, the process lookup and the sign-in decision are tested. The registry, shortcut and process-ending work change the real machine, so an install on the reference machine is their test. |
-| `internal/ui` | 31 | The menu mapping, the drawing, the support entry, the icon and the monitor reading are tested. The message loop and window handling need a desktop and a person at it. |
+| `internal/ui` | 39 | The menu mapping, the drawing, the support entry, the icon, the monitor reading, the update check's hand-off and the update dialog's record are tested. The message loop, window handling and the dialogs themselves need a desktop and a person at it. |
 
 ## What the tests prove
 
@@ -92,9 +93,11 @@ values.
 
 `tests/structural/boundary_test.go` parses every Go file in the repository
 and fails on a layer violation, an I/O import or a clock read in the core, a
-second composition root, a `net` import, test support used outside tests, a
-file over 400 lines or in the 381 to 399 band, an undocumented exported
-type. Each assertion was proved by planting a violation.
+second composition root, a `net` import anywhere but `net/http` in the update
+check, an update check that no longer needs that exemption, test support used
+outside tests, a file over 400 lines or in the 381 to 399 band, an
+undocumented exported type. Each assertion was proved by planting a
+violation.
 [ARCHITECTURE.md](ARCHITECTURE.md) lists them against the invariants they
 guard.
 
@@ -114,6 +117,16 @@ guard.
 - **The support entry**: the address asserted literally and as `https`; the
   entry asks for that one address; a refusal is logged and shown; anything but
   `https` is refused before the desktop sees it.
+- **The update check**: every outcome and every reply, a version table
+  (prefixes, extra numbers, a prerelease, nonsense on either side, a source
+  build's `0.0.0-dev` that must never claim the latest version), the skip
+  remembered across runs and kept for the run when it cannot be saved. The
+  GitHub source against a fake client: the address asserted literally, the
+  five-second limit, every failure, malformed assets dropped, an answer past
+  the size cap cut there. The window's side: a panicking checker still
+  answers, a request during a check joins it, each button's answer is carried
+  out and the TaskDialog record reads back field by field at the offsets
+  measured on the reference machine.
 
 ## What the tests never do
 
@@ -122,6 +135,8 @@ guard.
   so the suite neither ends WhatDay nor measures differently because of it.
 - **Open a browser.** The window's opener is replaced in the tests; the real
   one is only handed addresses it refuses.
+- **Reach the network or open a dialog.** The GitHub source is handed a fake
+  client; the window's checker, prompt and message box are replaced.
 - **Read the real settings or log.** Tests work in temporary folders.
 
 ## Running part of the suite
@@ -153,6 +168,8 @@ beside each requirement.
 | Explorer restart (FR-024) | Restart Windows Explorer from Task Manager; the tray icon returns. |
 | Quit (FR-035) | The log says `quit from the tray` and the process ends. |
 | Support (FR-036) | The PayPal page opens in the browser. |
+| Check for updates (FR-037) | On the newest release: `You are running the latest version.` With the network off: the could-not-reach message. |
+| Update prompt (FR-038, FR-039) | Install an older release while a newer one is published: a few seconds after start the prompt offers it with three named buttons. Download opens the setup program in the browser; Skip This Version stops the offer at the next start; `Check for updates` still offers it. |
 | Start at sign-in (FR-060) | Install with the option on, reboot, sign in: the strip appears. Untick it from setup's repair screen, reboot: nothing starts. |
 | Setup (FR-070 to FR-074) | Install, update, go back, repair and uninstall, each once, with WhatDay running; the registry and folders inspected afterwards. |
 | Idle CPU, memory, startup time (NFR-PERF-001 to 003) | `Get-Process` over ten minutes and 24 hours; the log's start and shown lines. |

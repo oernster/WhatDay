@@ -22,7 +22,9 @@ proved to bite by planting a violation and watching it fail.
 | Domain and application never read the clock: no `time.Now`, `time.Since` or `time.Until`. The instant arrives through the `Clock` port. | [`TestCoreIsPure`](tests/structural/boundary_test.go) |
 | UI and infrastructure never import each other. | [`TestUIAndInfrastructureStayApart`](tests/structural/boundary_test.go) |
 | Only `cmd/whatday/main.go` wires the application to infrastructure. | [`TestCompositionRootIsWhitelisted`](tests/structural/boundary_test.go) |
-| No code in the repository imports `net` or any `net/` package. | [`TestNoNetworkImports`](tests/structural/boundary_test.go) |
+| No code in the repository imports `net` or any `net/` package, except `net/http` in `internal/infrastructure/update`. | [`TestNoNetworkImports`](tests/structural/boundary_test.go) |
+| That exemption lasts only while the update check needs it. | [`TestUpdateCheckExemptionIsStillNeeded`](tests/structural/boundary_test.go) |
+| The update check asks WhatDay's own releases, over `https`. | [`TestTheRequestAsksWhatDaysLatestReleaseAsJSON`](internal/infrastructure/update/github_test.go) |
 | Test support is imported by tests only. | [`TestTestSupportIsForTestsOnly`](tests/structural/boundary_test.go) |
 | No Go file exceeds 400 lines; none sits in the 381 to 399 danger band. | [`TestNoFileExceedsLineLimit`, `TestNoFileInDangerBand`](tests/structural/boundary_test.go) |
 | Every exported type has a doc comment. | [`TestEveryExportedTypeIsDocumented`](tests/structural/boundary_test.go) |
@@ -42,6 +44,7 @@ internal/infrastructure/
     settings         settings.json, saved atomically
     runlog           the log, plus crash output pointed at it
     instance         one copy per user session
+    update           the latest release, read from GitHub
     setup            the install policy the setup program uses
 installer            the Wails setup program, a facade over setup
 tests/structural     the invariants above
@@ -67,11 +70,12 @@ Pure functions over values handed in; no clock, no disk, no window.
 
 ### Application
 
-One use-case object, `Indicator`, behind six ports declared in
-[`ports.go`](internal/application/ports.go): `Clock`, `Zones`, `View`,
-`Scheduler`, `SettingsStore` and `Log`. It also owns the menu model and the
-About text, so the words WhatDay shows are decided here rather than in Win32
-code.
+Two use-case objects behind seven ports declared in
+[`ports.go`](internal/application/ports.go): `Indicator` uses `Clock`,
+`Zones`, `View`, `Scheduler`, `SettingsStore` and `Log`; `UpdateChecker` uses
+`ReleaseSource`. The application also owns the menu model, the About text and
+the update prompt's wording, so the words WhatDay shows are decided here
+rather than in Win32 code.
 
 `Refresh` is the single response to every event that could change the day:
 the midnight wake-up, resume from sleep, a clock change, a timezone change.
@@ -89,7 +93,7 @@ process that really crashes, the real ICU.
 
 The Win32 surface, written against `golang.org/x/sys/windows` with no toolkit.
 It implements `View` and `Scheduler` and talks to the application through a
-`Controller` interface. Its testable pieces (the menu mapping, the drawing,
+`Controller` interface, plus an `Updater` for the update check. Its testable pieces (the menu mapping, the drawing,
 the support entry, the icon, the monitor reading) are tested; the message loop
 and window handling are verified by hand.
 
@@ -174,7 +178,8 @@ confirmed fixed on the reference machine.
 ## Settings
 
 `%APPDATA%\WhatDay\settings.json` holds the colour name, plus the position
-once the strip has been dragged. The file's shape is its own type in the
+once the strip has been dragged and the release tag once a version has been
+skipped. The file's shape is its own type in the
 settings package, kept apart from the port's `Settings` on purpose: the file is a format and the
 port is a type. Saves go to a temporary file first, then one rename replaces
 the target, so an interrupted save leaves the previous file intact. A save
@@ -205,6 +210,41 @@ desktop through `ShellExecute`. WhatDay opens no connection; the browser does.
 Only an `https` address is handed over. A refusal is logged and shown in a
 message box, so the entry never appears to do nothing. The address lives once,
 in `internal/application/about.go`, beside the rest of the product's identity.
+
+## The update check
+
+The house update check, ported from PigeonPost (Amendment 11). It is the one
+connection WhatDay makes.
+
+- **What is asked.** `GET https://api.github.com/repos/oernster/WhatDay/releases/latest`,
+  anonymous, five seconds at most, the answer read to 1 MB at most. That
+  endpoint only ever answers a published release that is neither a draft nor a
+  prerelease, so a pushed tag can never prompt; the guard is GitHub's own
+  contract rather than a check here.
+- **When.** Three seconds after the strip appears, so it never competes with
+  starting up, then every 24 hours of running on the same Win32 timer. The
+  timer counts elapsed time and pauses in sleep, which is harmless here: a
+  check a few hours late costs nothing. `Check for updates` asks at once.
+- **Off the window's thread.** The check waits on the network, so it runs on
+  its own goroutine with a recover at its top. It hands its answer back
+  through a channel and a posted message; the window shows it on its own
+  thread. A panic becomes an unreachable check naming the panic, so the window
+  always hears back.
+- **What is shown** is decided in the application (`UpdateStatus.Reply`): an
+  automatic check speaks only to offer a release that has not been skipped; a
+  check the user asked for ignores the skip and reports every outcome. A
+  version that is not dotted numbers on either side, a source build's
+  `0.0.0-dev` included, reads as unreachable: WhatDay cannot tell, so it
+  never claims to be the latest.
+- **The prompt** is Windows' TaskDialog with Download, Skip This Version and
+  Later. TaskDialog lives only in version 6 of the common controls, which the
+  manifest `build.ps1` embeds asks for. Its record is packed to one byte, so
+  it is written byte by byte at offsets measured on the reference machine.
+  Where the manifest is missing or Windows refuses the dialog, a Yes, No,
+  Cancel box says which button does what.
+- **Download** hands the release's `.exe` to the browser through the same
+  `https`-only opener as the Support entry, falling back to the release page.
+  **Skip** saves the tag exactly as released.
 
 ## The setup program
 
@@ -253,3 +293,5 @@ that are never committed. Nothing in the source holds a version.
 | Clicking the strip | Does nothing | Opening the menu: the tray was decided as the one control surface (Q-1). |
 | Light mode | None: always dark | Following the Windows mode: the owner uses dark mode only. |
 | Setup program | Wails, ported from PigeonPost | Designing one afresh: the house installer already exists. |
+| Update check | GitHub's latest release, in-app, ported from PigeonPost (Amendment 11) | None at all, the first design: the owner ruled that WhatDay should follow the house model; the no-network promise is restated as one anonymous read rather than broken silently. |
+| Update prompt | TaskDialog behind a common-controls manifest | A plain message box: its buttons cannot be renamed, so Download, Skip and Later would be Yes, No and Cancel. It stays as the fallback. |

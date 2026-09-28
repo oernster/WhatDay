@@ -73,8 +73,11 @@ func TestOpenExternalRefusesAnythingButHTTPS(t *testing.T) {
 
 func TestNewWindowOpensThroughTheDesktop(t *testing.T) {
 	t.Parallel()
-	w := NewWindow(&recordingLog{}, nil)
+	w := NewWindow(&recordingLog{}, nil, &fakeUpdater{})
 	if w.open == nil || w.alert == nil {
 		t.Fatal("a new window cannot open the support page or say it failed")
+	}
+	if w.updates.updater == nil || w.updates.ask == nil || w.updates.tell == nil || cap(w.updates.results) != 1 {
+		t.Fatal("a new window cannot check for updates or answer one")
 	}
 }

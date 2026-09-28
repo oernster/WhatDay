@@ -40,6 +40,12 @@ Write-Host "Building WhatDay $version"
 $icon = Join-Path $root 'assets/application-icon.ico'
 if (-not (Test-Path $icon)) { throw 'Missing assets/application-icon.ico: run python tools/genicons.py first.' }
 
+# The manifest asks for version 6 of the common controls, where the update
+# prompt's three named buttons live. Without it the prompt falls back to a
+# plain Yes, No, Cancel box, so a missing file is a build error, not a warning.
+$manifest = Join-Path $root 'assets/WhatDay.manifest'
+if (-not (Test-Path $manifest)) { throw 'Missing assets/WhatDay.manifest.' }
+
 $company = 'Oliver Ernster'
 $copyright = [char]0x00A9 + ' 2026 Oliver Ernster'
 $dotted = "$version.0"
@@ -57,9 +63,10 @@ $versionInfo = [ordered]@{
     }
     VarFileInfo    = [ordered]@{ Translation = [ordered]@{ LangID = '0409'; CharsetID = '04B0' } }
     IconPath       = $icon
+    ManifestPath   = $manifest
 }
 
-Write-Host 'Embedding the icon and version in the application...'
+Write-Host 'Embedding the icon, version and manifest in the application...'
 try {
     $versionInfo | ConvertTo-Json -Depth 5 | Set-Content -Path $info -Encoding utf8
     go run $goversioninfo -64 -o $resource $info

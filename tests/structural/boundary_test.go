@@ -228,15 +228,48 @@ func TestCompositionRootIsWhitelisted(t *testing.T) {
 	}
 }
 
+// The update check is the one exception to NFR-PRIV-001 (Amendment 11): one
+// package, allowed one network import.
+const (
+	updateCheckPackage = "internal/infrastructure/update"
+	updateCheckImport  = "net/http"
+)
+
+// inUpdateCheck reports whether path is a file of the update check's package.
+func inUpdateCheck(root, path string) bool {
+	return filepath.ToSlash(filepath.Dir(relativeTo(root, path))) == updateCheckPackage
+}
+
 func TestNoNetworkImports(t *testing.T) {
 	root := repoRoot(t)
 	for _, path := range goFiles(t) {
 		for _, imported := range importsOf(t, path) {
-			if imported == "net" || strings.HasPrefix(imported, "net/") {
-				t.Errorf("%s imports %s: WhatDay makes no network connections (NFR-PRIV-001)", relativeTo(root, path), imported)
+			if imported != "net" && !strings.HasPrefix(imported, "net/") {
+				continue
+			}
+			if inUpdateCheck(root, path) && imported == updateCheckImport {
+				continue
+			}
+			t.Errorf("%s imports %s: only the update check reaches the network, through %s alone (NFR-PRIV-001)", relativeTo(root, path), imported, updateCheckImport)
+		}
+	}
+}
+
+// TestUpdateCheckExemptionIsStillNeeded fails once the update check no longer
+// imports the network, so the exemption above cannot outlive its reason.
+func TestUpdateCheckExemptionIsStillNeeded(t *testing.T) {
+	root := repoRoot(t)
+	for _, path := range goFiles(t) {
+		if !inUpdateCheck(root, path) || isTest(path) {
+			continue
+		}
+		for _, imported := range importsOf(t, path) {
+			if imported == updateCheckImport {
+				return
 			}
 		}
 	}
+	t.Errorf("nothing in %s imports %s any more: remove its exemption from TestNoNetworkImports", updateCheckPackage, updateCheckImport)
 }
 
 func TestTestSupportIsForTestsOnly(t *testing.T) {
