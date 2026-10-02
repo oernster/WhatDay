@@ -1,6 +1,6 @@
 # Testing
 
-How WhatDay is tested, what the gate checks and what is checked by hand.
+How WhatDay is tested, what the gate checks and what the suite proves.
 Every command is PowerShell, run from the repository root.
 
 ## The gate
@@ -152,24 +152,11 @@ walk.
 
 ## Checked by hand
 
-Some requirements need a real desktop, a real clock or a real person. They
-are checked on the reference machine (a Windows 11 desktop with monitors at
-100% and 250% scale) and recorded in [REQUIREMENTS.md](REQUIREMENTS.md)
-beside each requirement.
+The message loop, the window itself, the dialogs, the registry and shortcut
+work, sleep and resume, real midnights and the performance budgets need a real
+desktop, a real clock or a person at it. They are checked by hand in a real
+build on the reference machine; [REQUIREMENTS.md](REQUIREMENTS.md) marks each
+requirement verified that way.
 
-| Check | How |
-|---|---|
-| The day changes at a real midnight (FR-003) | Leave it running; the log shows `showing <day>` at 00:00. |
-| Resume from sleep (FR-004) | Sleep before midnight, wake after; the day is right within a second. |
-| No frame, always on top, no taskbar button or Alt+Tab entry (FR-010 to FR-013) | Look. |
-| Height on the 250% monitor (FR-014) | Drag it there; it matches that taskbar. |
-| Hides for fullscreen, not for a screenshot (FR-020) | A fullscreen video hides it; Win+Shift+S does not. |
-| Display, DPI and taskbar changes (FR-023) | Change resolution and scale, unplug a monitor. |
-| Explorer restart (FR-024) | Restart Windows Explorer from Task Manager; the tray icon returns. |
-| Quit (FR-035) | The log says `quit from the tray` and the process ends. |
-| Support (FR-036) | The PayPal page opens in the browser. |
-| Check for updates (FR-037) | On the newest release: `You are running the latest version.` With the network off: the could-not-reach message. |
-| Update prompt (FR-038, FR-039) | Install an older release while a newer one is published: a few seconds after start the prompt offers it with three named buttons. Download opens the setup program in the browser; Skip This Version stops the offer at the next start; `Check for updates` still offers it. |
-| Start at sign-in (FR-060) | Install with the option on, reboot, sign in: the strip appears. Untick it from setup's repair screen, reboot: nothing starts. |
-| Setup (FR-070 to FR-074) | Install, update, go back, repair and uninstall, each once, with WhatDay running; the registry and folders inspected afterwards. |
-| Idle CPU, memory, startup time (NFR-PERF-001 to 003) | `Get-Process` over ten minutes and 24 hours; the log's start and shown lines. |
+[ARCHITECTURE.md](ARCHITECTURE.md) covers why the code is shaped this way;
+[DEVELOPMENT.md](DEVELOPMENT.md) covers building it.

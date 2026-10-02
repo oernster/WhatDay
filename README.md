@@ -68,8 +68,9 @@ Clicking the strip itself does nothing, on purpose.
   only connection WhatDay makes: an anonymous read of WhatDay's public
   releases list on GitHub, a few seconds after it starts, once a day after
   that and whenever you choose `Check for updates`. It sends no version, no
-  identifier and no telemetry; the request carries only an `Accept` header and
-  Go's default user agent. There are no accounts. A structural test fails the
+  identifier and no telemetry; the request carries only an `Accept` header,
+  Go's default user agent and Go's standard request for a compressed answer.
+  There are no accounts. A structural test fails the
   build if any other code imports a network package. The setup program makes
   no connection at all. The Support entry and Download hand a web address to
   your browser, which is the program that connects.
@@ -89,7 +90,8 @@ gets its translucent Acrylic backdrop (22H2 and later).
 Setup puts WhatDay in `%LOCALAPPDATA%\Programs\WhatDay`, adds a Start Menu
 shortcut and lists it under Settings > Apps. `Start WhatDay when I sign in to
 Windows` is ticked to begin with; untick it to start WhatDay only when you
-choose.
+choose. `Start WhatDay when setup finishes` is ticked too, so the strip
+appears as soon as setup is done.
 
 Running setup again offers Update, Go back or Repair, depending on the version
 already installed, with Uninstall beside each. The sign-in option shows how it
@@ -136,12 +138,12 @@ That stamps the site's version, runs the whole test gate, then builds
   enforce and why the design is the shape it is.
 - [DEVELOPMENT.md](DEVELOPMENT.md): tools, building, the icon and the release
   steps.
-- [TESTING.md](TESTING.md): the gate, the coverage floors and the checks made
-  by hand.
+- [TESTING.md](TESTING.md): the gate, the coverage floors and what the
+  suite proves.
 - [REQUIREMENTS.md](REQUIREMENTS.md): the specification, every requirement
   with the test or check that verifies it.
-- [`DECISIONS-TRADEOFFS.md`](DECISIONS-TRADEOFFS.md) sets out the decisions
-  WhatDay rests on, with what each one gains and what it costs.
+- [DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md): the decisions WhatDay
+  rests on, with what each one gains and what it costs.
 
 ## Supporting the project
 

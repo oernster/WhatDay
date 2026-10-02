@@ -32,8 +32,8 @@ anywhere but the bottom) are ruled out rather than offered.
 
 ### Go on Win32, with no toolkit
 
-The application is pure Go, written against the Windows API through
-`golang.org/x/sys/windows` and the standard library alone. No C compiler is
+The application is pure Go, written directly against the Windows API with
+the standard library and Go's own Windows extension. No C compiler is
 needed.
 
 - **Rather than:** a UI toolkit. One popup window, one menu, a message box
@@ -111,10 +111,10 @@ it changes.
 
 The new day begins at the first instant the local date changes. Usually
 that is 00:00; where a zone's clocks jump forward at midnight, it is the
-moment of the jump, found by bisection.
+moment of the jump.
 
 - **Rather than:** asking for 00:00 on the next date, which was measured
-  wrong at 746 midnights across 598 zones between 2000 and 2100.
+  wrong in every zone whose clocks skip midnight.
 - **Gains:** the day changes at the right instant in every zone, including
   the ones whose midnight never happens.
 - **Costs:** a little more code than the obvious version.
@@ -144,9 +144,9 @@ whichever comes first.
 
 ### The calendar is checked independently
 
-Every date from 2000 to 2399 is checked against a separate weekday formula
-written into the test. Midnight is followed through four centuries in London
-and through a century in every zone of the embedded database.
+Every date across four centuries is checked against a separate weekday
+formula written into the test. Midnight is followed through every zone of
+the embedded database.
 
 - **Rather than:** trusting Go's own time package to check itself.
 - **Gains:** leap years, century years and clock changes are proved rather
@@ -224,10 +224,10 @@ fullscreen application, the same signal the taskbar hides on.
 While the mouse button is down, a change of scale from crossing onto
 another monitor is ignored; the drag sizes the strip itself.
 
-- **Rather than:** laying out at once, which snapped the strip back to its
+- **Rather than:** laying out at once, which snaps the strip back to its
   saved position mid-drag.
 - **Gains:** a drag between monitors of different scales goes where it is
-  taken. The cause was found from the log and confirmed fixed.
+  taken.
 - **Costs:** none recorded.
 
 ### A lost monitor sends it home
@@ -236,9 +236,9 @@ If the strip's centre lies on no attached monitor, it moves to the bottom
 right of the main monitor. A strip still on its monitor is clamped into
 that monitor's work area instead.
 
-- **Rather than:** judging "lost" by the work area, which sent a strip whose
-  centre sat over the taskbar to the default corner though its monitor was
-  still attached.
+- **Rather than:** judging "lost" by the work area, which would send a
+  strip whose centre sat over the taskbar to the default corner though its
+  monitor was still attached.
 - **Gains:** unplugging a monitor never strands the strip off screen; a
   strip near the taskbar stays where it was put.
 - **Costs:** none recorded.
@@ -247,11 +247,11 @@ that monitor's work area instead.
 
 ### Seven colours, measured rather than picked by eye
 
-The palette holds seven named shades. A test holds every one to at least
-3:1 contrast (the WCAG figure for large text) and every pair to a CIEDE2000
-distance of at least 20. The colour formulas are themselves checked against
-published reference values. Yellow was chosen from seven candidates as the
-one furthest from Amber.
+The palette holds seven named shades. A test holds every one to the WCAG
+contrast minimum for large text and every pair to a minimum perceptual
+distance, so no two look alike. The colour formulas are themselves checked
+against published reference values. Yellow was chosen from several
+candidates as the one furthest from Amber.
 
 - **Rather than:** shades chosen by eye; an open colour picker.
 - **Gains:** every choice is readable and no two look alike; a new shade
@@ -287,9 +287,10 @@ The setup program makes no connection.
 
 ### Nothing about the user in the request
 
-The request names WhatDay's releases and asks for JSON. It sends no
-version, no identifier and no telemetry. It gives up after five seconds and
-reads at most one megabyte of the answer.
+The request names WhatDay's releases and asks for JSON. Beyond that it
+carries only the standard headers Go sends with any request: no version, no
+identifier and no telemetry. It gives up quickly and reads only a bounded
+amount of the answer.
 
 - **Rather than:** telling the server which version is asking.
 - **Gains:** nothing about the user or the machine leaves it; a slow or
@@ -298,10 +299,10 @@ reads at most one megabyte of the answer.
 
 ### Update checks: daily, quiet unless there is news
 
-An automatic check runs three seconds after the strip appears, then every
-twenty-four hours, off the window's thread. It speaks only to offer a newer
-release that has not been skipped. A check the user asks for ignores the
-skip and always answers.
+An automatic check runs a few seconds after the strip appears, then once a
+day, off the window's thread. It speaks only to offer a newer release that
+has not been skipped. A check the user asks for ignores the skip and always
+answers.
 
 - **Rather than:** no check at all; one that reports every outcome.
 - **Gains:** updates are found without nagging; starting up is never slowed
@@ -329,13 +330,13 @@ skipped release is saved by its tag and not offered again.
 - **Rather than:** a plain message box alone, whose buttons cannot be
   renamed.
 - **Gains:** the choices say what they do.
-- **Costs:** the dialog's record is laid out by hand at offsets measured on
-  the reference machine.
+- **Costs:** the dialog's record is laid out by hand, as measured on the
+  reference machine.
 
 ### Donations and downloads go through the browser
 
 The Support entry and the update prompt's Download hand an address to the
-default browser. Only an `https` address is handed over. A refusal is
+default browser. Only a secure web address is handed over. A refusal is
 logged and shown, so the entry never appears to do nothing.
 
 - **Rather than:** making those requests itself.
@@ -347,7 +348,7 @@ logged and shown, so the entry never appears to do nothing.
 ### The log opens first
 
 The log is opened before anything else. Standard error is pointed at it, so
-a crash report lands in the file. A log past one megabyte is started afresh
+a crash report lands in the file. A log past a size limit is started afresh
 when the next run begins. Without a log folder, lines go to standard error
 rather than stopping the program.
 
@@ -358,9 +359,9 @@ rather than stopping the program.
 
 ### One copy per session; two beat none
 
-A named mutex scoped to the user's session lets one copy run; a second
-steps aside and says so in the log. If the check itself fails, WhatDay
-starts anyway.
+A named lock scoped to the user's session lets one copy run; a second steps
+aside and says so in the log. If the check itself fails, WhatDay starts
+anyway.
 
 - **Rather than:** refusing to start when the check cannot be made.
 - **Gains:** a fault in the check never leaves the user with no strip.
@@ -406,10 +407,10 @@ sign-in entry go under the user's own registry.
 
 Setup offers to start WhatDay at sign-in, ticked on a fresh install and
 otherwise showing what the machine holds. On the repair screen a change
-applies at once. The entry is written as a plain quoted path.
+applies at once. The entry is written in the plain quoted form Windows
+itself uses.
 
-- **Rather than:** always starting at sign-in; quoting the path with Go's
-  own quoting, which doubled every backslash in the registry.
+- **Rather than:** always starting at sign-in.
 - **Gains:** the user decides; the option never claims a state the machine
   is not in.
 - **Costs:** none recorded.
@@ -488,8 +489,9 @@ proved by planting a violation.
 
 ### Complete coverage where it means something
 
-The domain and application are held at 100% statement coverage. Every other
-package is held at the figure it actually reaches, raised when cover rises.
+The domain and application are held at complete statement coverage. Every
+other package is held at the figure it actually reaches, raised when cover
+rises.
 
 - **Rather than:** one figure over the whole program; floors set as
   targets.
@@ -499,8 +501,8 @@ package is held at the figure it actually reaches, raised when cover rises.
 
 ### Small files
 
-No Go file may exceed four hundred lines. None may sit in the band just
-below that limit either.
+Every source file stays under a line limit. None may sit in the band just
+below it either.
 
 - **Rather than:** letting files grow.
 - **Gains:** files split at real seams before they are forced to.
@@ -508,8 +510,8 @@ below that limit either.
 
 ### Tests with real parts that never touch the user's copy
 
-Tests use a real temporary folder, a real mutex held by a second process,
-a child process that really crashes and the real ICU. They never reach the
+Tests use a real temporary folder, a real lock held by a second process, a
+child process that really crashes and the real ICU. They never reach the
 network, open a browser or a dialog, read the real settings or touch a
 running WhatDay.
 

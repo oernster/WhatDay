@@ -224,8 +224,9 @@ connection WhatDay makes.
   prerelease, so a pushed tag can never prompt; the guard is GitHub's own
   contract rather than a check here.
 - **When.** Three seconds after the strip appears, so it never competes with
-  starting up, then every 24 hours of running on the same Win32 timer. The
-  timer counts elapsed time and pauses in sleep, which is harmless here: a
+  starting up, then every 24 hours of running, on a Win32 timer of its own
+  beside the midnight one. That timer counts elapsed time and pauses in sleep,
+  which is harmless here: a
   check a few hours late costs nothing. `Check for updates` asks at once.
 - **Off the window's thread.** The check waits on the network, so it runs on
   its own goroutine with a recover at its top. It hands its answer back
@@ -286,15 +287,8 @@ that are never committed. Nothing in the source holds a version.
 
 ## Decisions
 
-| Decision | Chosen | Rejected: what and why |
-|---|---|---|
-| UI toolkit for the strip | Raw Win32 through `x/sys/windows` | A toolkit: constraint C-2 keeps the application to the standard library and `x/sys`; one popup window, one menu, a message box and a TaskDialog need nothing more. |
-| Where the day appears | A strip above the taskbar | A taskbar button: abandoned before measurement in favour of the strip. Drawing on the taskbar: measured, it covers a topmost window. |
-| Background | Dark Acrylic | Mica, Mica Alt and solid colours: tried by eye on the reference machine; they looked alike and none matched the taskbar, which is tinted by the wallpaper. |
-| Timezone | Follow Windows, re-read every refresh | A fixed zone (the first design): a laptop travels. `time.Local`: read once per process. |
-| Fullscreen signal | `ABN_FULLSCREENAPP` | The notification-state API: measured hiding the strip for a screenshot. |
-| Clicking the strip | Does nothing | Opening the menu: the tray was decided as the one control surface (Q-1). |
-| Light mode | None: always dark | Following the Windows mode: the owner uses dark mode only. |
-| Setup program | Wails, ported from PigeonPost | Designing one afresh: the house installer already exists. |
-| Update check | GitHub's latest release, in-app, ported from PigeonPost (Amendment 11) | None at all, the first design: the owner ruled that WhatDay should follow the house model; the no-network promise is restated as one anonymous read rather than broken silently. |
-| Update prompt | TaskDialog behind a common-controls manifest | A plain message box: its buttons cannot be renamed, so Download, Skip and Later would be Yes, No and Cancel. It stays as the fallback. |
+Each design choice above, with what it was chosen over and what it costs, is
+set out once in [DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md).
+
+[TESTING.md](TESTING.md) covers the gate and what the suite proves;
+[DEVELOPMENT.md](DEVELOPMENT.md) covers building and releasing.

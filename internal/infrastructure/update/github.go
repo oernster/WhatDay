@@ -1,8 +1,9 @@
 // Package update answers WhatDay's latest published release from GitHub
 // (FR-037, FR-038). It is the one package in WhatDay that reaches the
 // network. It makes one kind of request: an anonymous read of the public
-// releases list carrying only an Accept header and Go's default user agent;
-// no version, no identifier, no telemetry (NFR-PRIV-001, Amendment 11).
+// releases list carrying only an Accept header, Go's default user agent and
+// the transport's own request for a gzip answer; no version, no identifier, no
+// telemetry (NFR-PRIV-001, Amendment 11).
 // Ported from PigeonPost's update source.
 //
 // GitHub's latest-release endpoint only ever answers a published release that

@@ -18,7 +18,7 @@ run each at a pinned version through `go run`, so a new release of either
 cannot change the result of building unchanged code. The pins live in those
 two scripts.
 
-cgo is not used. No C compiler is needed.
+The code imports no C, so no C compiler is needed.
 
 ## Building
 

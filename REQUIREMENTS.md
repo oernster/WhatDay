@@ -612,8 +612,10 @@ the same test.
 **NFR-PRIV-001 One connection**: WhatDay's only network connection shall be
 the update check (FR-037, FR-038): an anonymous `GET` of its own latest
 release from `api.github.com`, sending no version, no identifier and no
-telemetry: only an `Accept` header and Go's default user agent. The setup program shall make none. The Support entry (FR-036) and Download
-hand an address to the browser, which is the program that connects.
+telemetry: only an `Accept` header, Go's default user agent and Go's standard
+request for a compressed answer. The setup program shall make none. The
+Support entry (FR-036) and Download hand an address to the browser, which is
+the program that connects.
 (Amendment 11.) Verified by
 `tests/structural/boundary_test.go::TestNoNetworkImports`, which forbids `net`
 and every `net/` package in the repository's own code except `net/http` in
