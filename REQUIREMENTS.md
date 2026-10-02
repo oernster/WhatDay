@@ -97,7 +97,7 @@ WhatDay starts on them with the backdrop refused and logged (FR-015).
 
 ### 2.4 Constraints
 
-- C-1 Language: Go 1.26, pure Go with cgo disabled.
+- C-1 Language: Go 1.26, pure Go with no C import, so no C compiler is needed.
 - C-2 Dependencies: the Go standard library plus `golang.org/x/sys/windows`
   for the application. No Wails, walk or other UI toolkit in the application;
   the setup program is a Wails application because that is the house
@@ -611,8 +611,8 @@ the same test.
 
 **NFR-PRIV-001 One connection**: WhatDay's only network connection shall be
 the update check (FR-037, FR-038): an anonymous `GET` of its own latest
-release from `api.github.com`, sending nothing about the user or the machine.
-The setup program shall make none. The Support entry (FR-036) and Download
+release from `api.github.com`, sending no version, no identifier and no
+telemetry: only an `Accept` header and Go's default user agent. The setup program shall make none. The Support entry (FR-036) and Download
 hand an address to the browser, which is the program that connects.
 (Amendment 11.) Verified by
 `tests/structural/boundary_test.go::TestNoNetworkImports`, which forbids `net`

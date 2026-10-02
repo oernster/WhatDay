@@ -67,8 +67,9 @@ Clicking the strip itself does nothing, on purpose.
 - **One connection; nothing about you in it.** The update check is the
   only connection WhatDay makes: an anonymous read of WhatDay's public
   releases list on GitHub, a few seconds after it starts, once a day after
-  that and whenever you choose `Check for updates`. It sends nothing about you
-  or your machine: no telemetry, no accounts. A structural test fails the
+  that and whenever you choose `Check for updates`. It sends no version, no
+  identifier and no telemetry; the request carries only an `Accept` header and
+  Go's default user agent. There are no accounts. A structural test fails the
   build if any other code imports a network package. The setup program makes
   no connection at all. The Support entry and Download hand a web address to
   your browser, which is the program that connects.
@@ -111,7 +112,7 @@ list entry and everything WhatDay wrote: its settings and its log.
 
 | Part | What |
 |---|---|
-| Language | Go, cgo disabled |
+| Language | Pure Go: no C import, no C compiler needed |
 | The application | The Go standard library plus `golang.org/x/sys/windows`: Win32 directly, no UI toolkit; the update prompt is Windows' own TaskDialog |
 | Timezone rules | The IANA database embedded in the binary (`time/tzdata`); Windows' own ICU names the zone |
 | The setup program | Wails v2, with a hand-written page |
