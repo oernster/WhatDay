@@ -139,6 +139,8 @@ That stamps the site's version, runs the whole test gate, then builds
   by hand.
 - [REQUIREMENTS.md](REQUIREMENTS.md): the specification, every requirement
   with the test or check that verifies it.
+- [`DECISIONS-TRADEOFFS.md`](DECISIONS-TRADEOFFS.md) sets out the decisions
+  WhatDay rests on, with what each one gains and what it costs.
 
 ## Supporting the project
 
