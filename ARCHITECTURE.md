@@ -46,6 +46,7 @@ internal/infrastructure/
     instance         one copy per user session
     update           the latest release, read from GitHub
     setup            the install policy the setup program uses
+internal/testsupport helpers imported by tests only
 installer            the Wails setup program, a facade over setup
 tests/structural     the invariants above
 ```
@@ -154,7 +155,8 @@ last good zone is kept and the fault is logged once.
   changes from day to day.
 - The process is per-monitor DPI aware (V2). The height is the taskbar height
   of the monitor the strip is on, which Windows already reports in that
-  monitor's pixels.
+  monitor's pixels. A monitor that shows no taskbar borrows the main
+  monitor's taskbar height, scaled by the ratio of the two monitors' DPIs.
 
 ### Why it stays out of the taskbar rather than sitting on it
 
@@ -192,11 +194,12 @@ that fails keeps the choice for the running session and logs why.
 A windowed program has no console, so an error that ends the run before the
 window opens reaches nobody.
 
-- The log is opened first. The process's standard error is pointed at it
-  (`SetStdHandle`) before anything else runs. The Go runtime's own crash
-  report therefore lands in the log.
-- Where a standard error exists, crash output is copied to the log as well
-  (`debug.SetCrashOutput`).
+- The log is opened first, before anything else runs.
+- Started from a shortcut or the Run key, the process has no standard error.
+  It is then pointed at the log (`SetStdHandle`), so the Go runtime's own
+  crash report lands there.
+- Where a standard error exists, it stays where it is; crash output is copied
+  to the log as well (`debug.SetCrashOutput`).
 - No log folder means lines go to standard error; that is not a reason to
   refuse to start.
 - A failed single-instance check starts anyway and says so: two copies beat
@@ -276,7 +279,9 @@ step. It is a facade; the install policy lives in
   quoted paths; Go's `%q` doubled every backslash.
 - Uninstall removes the shortcut, the sign-in entry, the Apps list entry,
   WhatDay's settings and log folders, then the install folder by a hidden
-  shell that waits for setup to exit and release its own executable.
+  shell. That shell first pauses for about two seconds (three pings of the
+  local machine), a fixed delay meant to let setup exit and release its own
+  executable; it does not watch for setup's exit.
 
 ## Versioning
 

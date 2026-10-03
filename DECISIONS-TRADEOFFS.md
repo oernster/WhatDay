@@ -201,7 +201,8 @@ is in. There is no background choice and no light strip.
 ### As tall as its own taskbar, as wide as the longest day
 
 The strip's height is the taskbar height of the monitor it is on, already in
-that monitor's pixels. Its width fits the widest day name, so it never
+that monitor's pixels; a monitor with no taskbar borrows the main monitor's,
+scaled to match. Its width fits the widest day name, so it never
 changes from day to day.
 
 - **Rather than:** one size everywhere; a width that follows the day.
@@ -347,8 +348,8 @@ logged and shown, so the entry never appears to do nothing.
 
 ### The log opens first
 
-The log is opened before anything else. Standard error is pointed at it, so
-a crash report lands in the file. A log past a size limit is started afresh
+The log is opened before anything else. Crash reports are sent to it, so a
+crash lands in the file even though a windowed program has no console. A log past a size limit is started afresh
 when the next run begins. Without a log folder, lines go to standard error
 rather than stopping the program.
 
