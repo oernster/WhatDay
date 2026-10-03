@@ -109,7 +109,6 @@ func (w *Window) showAbout() {
 // ownIcon loads the icon embedded in this executable, falling back to the
 // shell's generic application icon when the binary carries none: a build
 // without an icon resource is normal before packaging, so this must not fail.
-// Ported from ED Voyage Companion's tray.
 func ownIcon() uintptr {
 	if path, err := os.Executable(); err == nil {
 		var large, small uintptr

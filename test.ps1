@@ -1,5 +1,5 @@
 # Verifies WhatDay: formatting, vet, staticcheck, the whole suite and the
-# coverage floor. Ported from ED Voyage Companion's test.ps1.
+# coverage floor.
 #
 #   ./test.ps1              run everything
 #   ./test.ps1 -Floor 95    run with a different coverage floor, for a deliberate check
@@ -79,9 +79,10 @@ try {
 # failures that cannot be caused on demand: a write failing straight after a
 # successful open; Go refusing a crash-output file.
 #
-# setup sits at its route, extraction and step log. Its registry, shortcut and
-# process work change the real machine, so the install on the reference
-# machine is its test rather than every run of the suite.
+# setup sits at its route, extraction, step log and the command that removes
+# the install folder, which is built and checked but never run. Its registry,
+# shortcut and process work change the real machine, so the install on the
+# reference machine is its test rather than every run of the suite.
 #
 # update is whole: every answer GitHub could give arrives through an injected
 # client, so no test reaches the network.
@@ -98,7 +99,7 @@ $measured = [ordered]@{
     './internal/infrastructure/instance' = 100
     './internal/infrastructure/runlog'   = 74
     './internal/infrastructure/settings' = 100
-    './internal/infrastructure/setup'    = 54
+    './internal/infrastructure/setup'    = 55
     './internal/infrastructure/update'   = 100
     './internal/infrastructure/zone'     = 92
     './internal/ui'                      = 39

@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/oernster/WhatDay/internal/application"
 )
@@ -29,6 +30,19 @@ const (
 	SetupName = AppName + "Setup.exe"
 	// Publisher is recorded in the uninstall entry.
 	Publisher = application.Author
+
+	// deletionExitWait bounds how long the hidden shell that removes the
+	// install folder waits for setup to exit. Setup stays on its verdict
+	// screen until the person closes it, so the wait covers someone reading
+	// it; once the wait runs out the shell tries the removal anyway.
+	deletionExitWait = 30 * time.Minute
+	// deletionAttempts is how many times the shell tries the removal, since
+	// a file can stay held for a moment after the process holding it exits.
+	deletionAttempts = 5
+	// deletionRetryPause is the pause between those attempts.
+	deletionRetryPause = time.Second
+	// powershellExe runs every script setup hands to Windows.
+	powershellExe = "powershell"
 
 	installSubdir = "Programs"
 	dirPerm       = 0o755
@@ -125,14 +139,14 @@ func extractEntry(file *zip.File, dest string) error {
 // Run and Uninstall keys is written. Go's %q is not this: it escapes each
 // backslash, so the registry received every separator doubled (measured on the
 // reference machine). Windows' file calls happen to resolve a doubled path;
-// it is still not the form those keys hold. Ported from ED Voyage Companion.
+// it is still not the form those keys hold.
 func quoted(path string) string { return `"` + path + `"` }
 
 // runTarget reads a sign-in entry back as the path it starts, so the entry can
 // be checked against the file it names. The quoted form is read first, since
 // that is what is written: everything up to the closing quote is the path. An
 // unquoted value is taken whole rather than split on its first space, because
-// a path with a space in it is ordinary. Ported from ED Voyage Companion.
+// a path with a space in it is ordinary.
 func runTarget(value string) string {
 	trimmed := strings.TrimSpace(value)
 	if strings.HasPrefix(trimmed, `"`) {
@@ -155,6 +169,29 @@ func startsAtLogin(read func() (string, error), exists func(path string) bool) b
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+// powershellArgs answers the command line that runs script, with no profile
+// and no prompts.
+func powershellArgs(script string) []string {
+	return []string{powershellExe, "-NoProfile", "-NonInteractive", "-Command", script}
+}
+
+// psQuoted wraps text in PowerShell single quotes, inside which nothing is
+// expanded and a quote is written twice.
+func psQuoted(text string) string { return `'` + strings.ReplaceAll(text, `'`, `''`) + `'` }
+
+// deletionArgs answers the command that removes dir once process pid has
+// exited. It waits up to deletionExitWait for the exit, then tries the
+// removal up to deletionAttempts times, deletionRetryPause apart, stopping as
+// soon as dir is gone. Building it here keeps it testable without running it.
+func deletionArgs(dir string, pid int) []string {
+	script := fmt.Sprintf(`$d=%s; Wait-Process -Id %d -Timeout %d -ErrorAction SilentlyContinue; `+
+		`for ($i = 0; $i -lt %d; $i++) { `+
+		`Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue; `+
+		`if (-not (Test-Path -LiteralPath $d)) { break }; Start-Sleep -Milliseconds %d }`,
+		psQuoted(dir), pid, int(deletionExitWait/time.Second), deletionAttempts, deletionRetryPause.Milliseconds())
+	return powershellArgs(script)
 }
 
 // DirSizeKB answers the size of a folder tree in kilobytes, for the Apps

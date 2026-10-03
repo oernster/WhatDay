@@ -50,7 +50,7 @@ the moment cover is lost; it is raised when cover rises.
 | `infrastructure/update` | 100 | |
 | `infrastructure/zone` | 92 | Three failures cannot be caused on demand: Windows refusing the zone query, `icu.dll` missing, ICU reporting an error. |
 | `infrastructure/runlog` | 74 | Its crash paths run in child processes the tests start on purpose. The tests prove them by reading the child's log; coverage cannot see into another process. Two more failures cannot be caused on demand. |
-| `infrastructure/setup` | 54 | The route, the extraction, the step log, the process lookup and the sign-in decision are tested. The registry, shortcut and process-ending work change the real machine, so an install on the reference machine is their test. |
+| `infrastructure/setup` | 55 | The route, the extraction, the step log, the process lookup, the sign-in decision and the command that removes the install folder are tested. The registry, shortcut and process-ending work change the real machine, so an install on the reference machine is their test. |
 | `internal/ui` | 39 | The menu mapping, the drawing, the support entry, the icon, the monitor reading, the update check's hand-off and the update dialog's record are tested. The message loop, window handling and the dialogs themselves need a desktop and a person at it. |
 
 ## What the tests prove

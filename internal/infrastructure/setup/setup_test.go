@@ -4,10 +4,12 @@ import (
 	"archive/zip"
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestDecideEveryRoute(t *testing.T) {
@@ -199,6 +201,33 @@ func TestStartsAtLoginOnlyForAnEntryNamingARealFile(t *testing.T) {
 		if got := startsAtLogin(c.read, fileExists); got != c.want {
 			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
 		}
+	}
+}
+
+// The deletion command is only built here, never run: running it would remove
+// a folder.
+func TestDeletionWaitsForSetupToExitThenRetries(t *testing.T) {
+	const pid = 4242
+	dir := filepath.Join(`C:\Users\O'Brien\AppData\Local`, installSubdir, AppName)
+	args := deletionArgs(dir, pid)
+	if len(args) == 0 || args[0] != powershellExe {
+		t.Fatalf("got %q, want a %s command", args, powershellExe)
+	}
+	script := args[len(args)-1]
+	wait := fmt.Sprintf("Wait-Process -Id %d -Timeout %d", pid, int(deletionExitWait/time.Second))
+	loop := fmt.Sprintf("$i -lt %d;", deletionAttempts)
+	pause := fmt.Sprintf("Start-Sleep -Milliseconds %d", deletionRetryPause.Milliseconds())
+	remove := "Remove-Item -LiteralPath $d -Recurse -Force"
+	for _, want := range []string{wait, loop, pause, remove, "$d='" + strings.ReplaceAll(dir, "'", "''") + "'"} {
+		if !strings.Contains(script, want) {
+			t.Errorf("the script lacks %q:\n%s", want, script)
+		}
+	}
+	if w, r := strings.Index(script, wait), strings.Index(script, remove); w < 0 || r < w {
+		t.Errorf("the folder is removed before setup is waited for:\n%s", script)
+	}
+	if strings.Contains(script, "ping") {
+		t.Errorf("a fixed pause stands in for the wait:\n%s", script)
 	}
 }
 

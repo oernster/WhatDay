@@ -1,6 +1,5 @@
 // Package structural enforces the architecture with tests rather than convention
-// (REQUIREMENTS.md C-3, NFR-MAINT-002, NFR-PRIV-001). Ported from ED Voyage
-// Companion's tests/structural.
+// (REQUIREMENTS.md C-3, NFR-MAINT-002, NFR-PRIV-001).
 //
 // Every assertion here has been proved to bite by planting a violation and
 // watching it fail. An assertion never seen to fail is not yet a guard.

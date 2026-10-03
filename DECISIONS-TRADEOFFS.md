@@ -441,12 +441,16 @@ before any is written.
 Uninstall removes the program, the shortcut, the sign-in entry, the Apps
 list entry, the settings and the log. The Apps list offers Uninstall and
 Modify but no Repair of its own; repairing always goes through setup's own
-screen. Setup keeps its own step log in the temporary folder.
+screen. Setup keeps its own step log in the temporary folder. The program
+folder goes last: a hidden shell waits for setup to exit, then removes it.
 
-- **Rather than:** leaving settings behind for a later install.
+- **Rather than:** leaving settings behind for a later install; removing the
+  program folder after a fixed pause, which fails silently while setup is
+  still open on its last screen.
 - **Gains:** nothing is left over; the step log survives the folders it
   removes.
-- **Costs:** a reinstall starts from the defaults.
+- **Costs:** a reinstall starts from the defaults. The wait is bounded at
+  30 minutes; setup left open longer than that leaves its folder behind.
 
 ### One version, one gate, pinned tools
 

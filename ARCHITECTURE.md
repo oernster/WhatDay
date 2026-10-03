@@ -279,9 +279,11 @@ step. It is a facade; the install policy lives in
   quoted paths; Go's `%q` doubled every backslash.
 - Uninstall removes the shortcut, the sign-in entry, the Apps list entry,
   WhatDay's settings and log folders, then the install folder by a hidden
-  shell. That shell first pauses for about two seconds (three pings of the
-  local machine), a fixed delay meant to let setup exit and release its own
-  executable; it does not watch for setup's exit.
+  PowerShell started in the temporary folder. It waits for setup's own
+  process to exit, for at most 30 minutes, since setup stays on its verdict
+  screen until it is closed. It then removes the folder, trying up to five
+  times a second apart. `deletionArgs` builds that command and is tested
+  without being run.
 
 ## Versioning
 

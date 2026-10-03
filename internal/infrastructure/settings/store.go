@@ -1,7 +1,7 @@
 // Package settings keeps WhatDay's settings in %APPDATA%\WhatDay\settings.json
-// (FR-050 to FR-054). Ported from ED Voyage Companion's config store; unlike
-// that store, Load reports a file it cannot read, because WhatDay's log must
-// say why the defaults were used (FR-053).
+// (FR-050 to FR-054). Load reports a file it cannot read rather than quietly
+// falling back, because WhatDay's log must say why the defaults were used
+// (FR-053).
 package settings
 
 import (

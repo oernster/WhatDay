@@ -577,7 +577,9 @@ that verifies it.
 - Requirement: When uninstalling, the setup program shall remove the install
   directory, the login entry, the Apps list entry and the settings (Q-4,
   decided 2026-09-19).
-- Verified by: manual; registry and folders inspected afterwards.
+- Verified by: `setup_test.go::TestDeletionWaitsForSetupToExitThenRetries`
+  for the command that removes the install directory once setup exits;
+  manual, registry and folders inspected afterwards.
 
 **FR-074 House style** (Amendment 8)
 - Priority: Must

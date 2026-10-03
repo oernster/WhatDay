@@ -1,7 +1,6 @@
 """Generate the Windows icon from the master artwork in assets/.
 
-Ported from ED Voyage Companion's tools/genicons.py, keeping its application
-icon half: assets/application-icon.png becomes a multi-size .ico beside it.
+assets/application-icon.png becomes a multi-size .ico beside it.
 That one file is the whole identity. build.ps1 embeds it in the executable,
 where the tray icon and the shortcuts take theirs from.
 

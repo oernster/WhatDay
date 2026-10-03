@@ -183,7 +183,7 @@ func SetStartAtLogin(exePath string, enabled bool) error {
 // StartsAtLogin reports whether the Run entry is present and names a file that
 // exists. Presence alone is not enough: an entry left pointing at a file that
 // has gone starts nothing, so it reads as off here and turning the option on
-// rewrites it. Ported from ED Voyage Companion.
+// rewrites it.
 func StartsAtLogin() bool { return startsAtLogin(readRunEntry, fileExists) }
 
 // readRunEntry answers WhatDay's value in the Run key.
@@ -217,7 +217,8 @@ func CreateShortcut(exePath, workDir string) error {
 	script := fmt.Sprintf(`$s=(New-Object -ComObject WScript.Shell).CreateShortcut(%q);`+
 		`$s.TargetPath=%q;$s.IconLocation=%q;$s.WorkingDirectory=%q;$s.Save()`,
 		link, exePath, exePath, workDir)
-	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", script)
+	args := powershellArgs(script)
+	cmd := exec.Command(args[0], args[1:]...)
 	cmd.SysProcAttr = hidden()
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("creating %s: %w: %s", link, err, out)
@@ -232,11 +233,14 @@ func RemoveShortcut() {
 	}
 }
 
-// ScheduleDirDeletion starts a hidden shell that waits for setup, running
-// from inside dir, to exit and release its own executable, then removes dir.
+// ScheduleDirDeletion starts a hidden shell that waits, within a bound, for
+// this setup process (running from inside dir) to exit and release its own
+// executable, then removes dir, retrying a bounded number of times. The
+// shell starts in the temporary folder so that it never holds dir itself.
 func ScheduleDirDeletion(dir string) error {
-	line := fmt.Sprintf(`ping 127.0.0.1 -n 3 >nul & rmdir /s /q "%s"`, dir)
-	cmd := exec.Command("cmd", "/C", line)
+	args := deletionArgs(dir, os.Getpid())
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = os.TempDir()
 	cmd.SysProcAttr = hidden()
 	return cmd.Start()
 }
