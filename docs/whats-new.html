@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>What's new in WhatDay: release history</title>
+    <meta name="description" content="WhatDay's release history: the update check's request stated exactly, an uninstall that removes the program folder, an update check of its own, Yellow in the palette, starting at sign-in made your choice and the first release.">
+    <meta name="theme-color" content="#11141b">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="What's new in WhatDay: release history">
+    <meta property="og:description" content="The update check's request stated exactly, an uninstall that removes the program folder, an update check of its own, Yellow in the palette and the first release.">
+    <meta property="og:image" content="https://ernster.dev/WhatDay/icon.png">
+    <meta property="og:url" content="https://ernster.dev/WhatDay/whats-new.html">
+    <link rel="canonical" href="https://ernster.dev/WhatDay/whats-new.html">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:site_name" content="WhatDay">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="256">
+    <meta property="og:image:height" content="256">
+    <meta property="og:image:alt" content="WhatDay app icon">
+    <meta property="og:locale" content="en_GB">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="What's new in WhatDay: release history">
+    <meta name="twitter:description" content="The update check's request stated exactly, an uninstall that removes the program folder, an update check of its own, Yellow in the palette and the first release.">
+    <meta name="twitter:image" content="https://ernster.dev/WhatDay/icon.png">
+    <meta name="twitter:image:alt" content="WhatDay app icon">
+    <link rel="stylesheet" href="styles.css">
+<script>window.goatcounter = {path: function (p) { return location.host + p }}</script>
+<script data-goatcounter="https://oernster.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+<header class="wrap site-head">
+    <a class="brand" href="./"><img src="icon.png" alt="" width="34" height="34"> WhatDay</a>
+    <nav aria-label="Sections">
+        <a href="./#why" class="hide-sm">Why</a>
+        <a href="./#overkill">Overkill</a>
+        <a href="whats-new.html" aria-current="page">What's New</a>
+        <a href="./#download">Download</a>
+        <a href="https://github.com/oernster/WhatDay">GitHub</a>
+    </nav>
+</header>
+
+<main id="top">
+
+    <section class="wrap" id="whats-new">
+        <p class="kicker">Changelog</p>
+        <h2>What's new</h2>
+        <div class="prose">
+            <p>Recent releases have focused on saying exactly what WhatDay does: one update
+                check, disclosed down to the headers its request carries; an uninstall that
+                really removes the program folder; the decisions behind it written down.
+                Earlier ones added Yellow to the palette and made starting at sign-in your
+                choice.</p>
+        </div>
+
+        <div class="changelog">
+
+            <div class="card">
+                <div class="ver-tag">v<!--VERSION-->1.3.0<!--/VERSION--></div>
+                <h3>What the update check sends, stated exactly</h3>
+                <ul>
+                    <li>The update check's request carries only the standard headers Go adds to any request: an Accept header, Go's default user agent and a request for a compressed answer. The README, the specification and the site now say exactly that; there is still no version, no identifier and no telemetry in it</li>
+                    <li>Uninstall could leave the program folder behind when setup was still open on its last screen. Setup now waits until it has actually closed, then removes the folder, trying again a few times if a file is still held for a moment</li>
+                    <li>A new document, DECISIONS-TRADEOFFS.md, sets out each deliberate choice WhatDay rests on and what it costs, checked against the code as it stands</li>
+                    <li>The documents now mention that setup can start WhatDay as soon as it finishes; they describe the build, the log and the strip's height on a monitor with no taskbar as the code has them</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="ver-tag">v1.2.0</div>
+                <h3>WhatDay tells you when there is a new version</h3>
+                <ul>
+                    <li>A few seconds after it starts, then once a day, WhatDay asks GitHub whether a newer release has been published. Download opens the new setup program in your browser; Skip This Version never offers that version again; Later asks at the next check</li>
+                    <li>The tray menu gains Check for updates, just below About. It always answers: with the offer, with word that you have the latest version or with a message saying GitHub could not be reached</li>
+                    <li>The update check is WhatDay's one network connection: an anonymous read of its own public releases list. A test fails the build if any other code tries to reach the network; the setup program still connects to nothing</li>
+                    <li>The site now lives at ernster.dev/WhatDay. One download button always fetches the newest setup program; the spacing between sections is back</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="ver-tag">v1.1.0</div>
+                <h3>Yellow joins the palette</h3>
+                <ul>
+                    <li>The tray menu offers seven colours rather than six. Yellow sits between Amber and Green, kept clearly apart from Amber on the taskbar; the colour you already chose is unchanged</li>
+                    <li>WhatDay's one-line description, shown by setup and at the head of this site, now asks what bloody day it is rather than using the stronger word it used to carry</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="ver-tag">v1.0.1</div>
+                <h3>Starting at sign-in is your choice</h3>
+                <ul>
+                    <li>Setup's install, update and repair screens carry Start WhatDay when I sign in to Windows. It is ticked on a fresh install; on the repair screen a change takes effect at once</li>
+                    <li>Setup now writes its sign-in entry and its Apps list commands with each path plainly in quotes instead of with every backslash doubled. Running this version's setup once rewrites all three</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="ver-tag">v1.0.0</div>
+                <h3>The first release: what day is it?</h3>
+                <ul>
+                    <li>The name of the day in a small, borderless, always-on-top strip just above the Windows 11 taskbar, as tall as the taskbar. It has no taskbar button and no Alt+Tab entry; it hides while a fullscreen application is open</li>
+                    <li>The day follows the timezone Windows is set to and changes at local midnight. It catches up after sleep, a clock change or a timezone change</li>
+                    <li>Drag the strip wherever you like and it remembers its place. Six colours are in the tray menu</li>
+                    <li>A setup program installs WhatDay for your account only, with no administrator rights. Uninstalling removes everything WhatDay wrote</li>
+                    <li>No network connection of any kind; a test fails the build if its code imports a network package</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="cta changelog-more">
+            <a class="btn" href="https://github.com/oernster/WhatDay/releases">View all releases on GitHub</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="wrap site-foot">
+    <span>&copy; Oliver Ernster. GPL-3.0.
+        <a href="https://ernster.dev/commercial-licensing.html">Commercial licences</a> available.</span>
+    <span><a href="https://github.com/oernster/WhatDay">Source</a> &middot;
+        <a href="https://ernster.dev">ernster.dev</a></span>
+</footer>
+
+</body>
+</html>
